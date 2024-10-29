@@ -13,6 +13,7 @@ class Shader
 public:
 	// the program ID
 	unsigned int ID;
+	bool hasUsed = false;
 
 	// constructor reads and builds the shader
 	Shader(const char* vertexPath, const char* fragmentPath);
