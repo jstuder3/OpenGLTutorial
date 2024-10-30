@@ -16,10 +16,31 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 unsigned int scr_width = 800;
 unsigned int scr_height = 800;
 
+float deltaTime = 0.01f;
+float lastFrame = 0.0f;
+
+bool wireframe = false;
+float lastWireFrameToggle = 0.0f;
+float wireFrameToggleCooldown = 0.2f;
+
+float cameraSpeed = 2.5f;
+const float cameraSensitivity = 0.1f;
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float yaw = -90.0f;
+float pitch = 0.0f;
+float lastX = scr_width / 2.0f;
+float lastY = scr_height / 2.0f;
+bool firstMouse = true;
+
+float fov = 45.0f;
 
 int main()
 {
@@ -40,6 +61,10 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetScrollCallback(window, scroll_callback); // scroll callback
 
 	// test if we can use glad to load the opengl functions
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -52,7 +77,6 @@ int main()
     glViewport(0, 0, scr_width, scr_height);
     glEnable(GL_DEPTH_TEST);
 	// set a callback function that adjusts the viewport when the window is resized
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
     // #################################
@@ -150,13 +174,27 @@ int main()
 	// ######### Transforms ############
     // #################################
 
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.f), glm::vec3(1.0f, 0.0f, 0.0f));
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), ((float)scr_width / (float)scr_height) * 2.0f, 0.1f, 100.f);
+    glm::mat4 model; //= glm::rotate(glm::mat4(1.0f), glm::radians(-55.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 view; // = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 projection;// = glm::perspective(glm::radians(45.0f), ((float)scr_width / (float)scr_height) * 2.0f, 0.1f, 100.f);
 
-    shader.setMat4("model", model);
-    shader.setMat4("view", view);
-	shader.setMat4("projection", projection);
+    //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    //glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    //glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+
+    //glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    //glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+
+    //glm::vec3 cameraUP = glm::cross(cameraDirection, cameraRight);
+
+	//view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), // camera position
+ //                       glm::vec3(0.0f, 0.0f, 0.0f), // target
+	//	                glm::vec3(0.0f, 1.0f, 0.0f) // up vector
+ //                       );
+
+ //   shader.setMat4("model", model);
+ //   shader.setMat4("view", view);
+	//shader.setMat4("projection", projection);
 
     //glm::mat4 trans = glm::mat4(1.0f);
     //trans = glm::rotate(trans, glm::radians(33.0f), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -216,15 +254,20 @@ int main()
 	// #################################
 	// ########## RENDER LOOP ##########
 	// #################################
-    bool wireframe = false;
     while (!glfwWindowShouldClose(window))
     {
+        // set deltatime
+		float currentFrame = (float)glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
         if (wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
         else {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
+
         // input
         processInput(window);
 
@@ -244,12 +287,9 @@ int main()
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
 
-        projection = glm::perspective(glm::radians(45.0f), ((float)scr_width / (float)scr_height), 0.1f, 100.f);
-		shader.setMat4("projection", projection);
-
         // transforms
         for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
-            float speed = 20.0f * (i+1);
+            float speed = 0.0f * (i+1);
             model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(speed), glm::vec3(1.0f, 0.3f, 0.5f));// translation);
             shader.setMat4("model", model);
@@ -258,6 +298,20 @@ int main()
   //      model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(50.f), glm::vec3(0.5f, 1.0f, 0.0f));
   //      shader.setMat4("model", model);
 
+        cameraFront.x = cos(glm::radians(yaw))* cos(glm::radians(pitch));
+		cameraFront.y = sin(glm::radians(pitch));
+		cameraFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        cameraFront = glm::normalize(cameraFront);
+
+
+        view = glm::lookAt( cameraPos, // camera position
+                            cameraPos+cameraFront, // target
+                            cameraUp // up vector
+        );
+        shader.setMat4("view", view);
+
+        projection = glm::perspective(glm::radians(fov), ((float)scr_width / (float)scr_height), 0.1f, 100.f);
+		shader.setMat4("projection", projection);
 
   //      // actual draw calls
   //      glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -292,5 +346,80 @@ void processInput(GLFWwindow* window)
 {
     // terminate the window when the escape key is pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, true);
+    }
+	// toggle wireframe mode
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && ((float)glfwGetTime() > lastWireFrameToggle + wireFrameToggleCooldown)) {
+		lastWireFrameToggle = (float)glfwGetTime();
+		wireframe = !wireframe;
+	}
+    // front-back movement
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		cameraPos += cameraSpeed * deltaTime * cameraFront;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		cameraPos -= cameraSpeed * deltaTime * cameraFront;
+	}
+
+    //left-right movement
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		cameraPos -= cameraSpeed * deltaTime * glm::normalize(glm::cross(cameraFront, cameraUp));
+	}
+	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		cameraPos += cameraSpeed * deltaTime * glm::normalize(glm::cross(cameraFront, cameraUp));
+	}
+
+    //up-down movement
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		cameraPos += cameraSpeed * deltaTime * cameraUp;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		cameraPos -= cameraSpeed * deltaTime * cameraUp;
+	}
+}
+
+void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
+    if (firstMouse) {
+        lastX = (float)xPos;
+        lastY = (float)yPos;
+        firstMouse = false;
+        return;
+    }
+    
+    float xOffset = (float)xPos - lastX;
+	float yOffset = lastY - (float)yPos;
+	lastX = (float)xPos;
+	lastY = (float)yPos;
+
+    xOffset *= cameraSensitivity;
+    yOffset *= cameraSensitivity;
+
+	yaw += xOffset;
+	pitch += yOffset;
+
+	// yaw = fmod(yaw, 360.0f);
+
+	if (pitch > 89.0f) {
+		pitch = 89.0f;
+	}
+	if (pitch < -89.0f) {
+		pitch = -89.0f;
+	}
+}
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
+    fov -= (float)yOffset * 2.0f;
+    if (fov < 1.0f) {
+        fov = 1.0f;
+    }
+    if (fov > 120.0f) {
+        fov = 120.0f;
+    }
 }
