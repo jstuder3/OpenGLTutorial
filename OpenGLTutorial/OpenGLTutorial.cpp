@@ -189,12 +189,11 @@ int main()
 
         // transforms
         glm::mat4 trans = glm::mat4(1.0);
-        trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
         trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
         
         unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-
 
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
@@ -207,6 +206,17 @@ int main()
         // actual draw calls
         // glDrawArrays(GL_TRIANGLES, 0, 3);
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+
+        glm::mat4 trans2 = glm::mat4(1.0);
+        //trans2 = glm::rotate(trans2, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        trans2 = glm::translate(trans2, glm::vec3(-0.5f, 0.5f, 0.0f));
+        trans2 = glm::scale(trans2, glm::vec3((float)sin(glfwGetTime())));
+
+        unsigned int transformLoc2 = glGetUniformLocation(shader.ID, "transform");
+        glUniformMatrix4fv(transformLoc2, 1, GL_FALSE, glm::value_ptr(trans2));
+
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+
 		// unbind the VAO
         glBindVertexArray(0);
         glUseProgram(0);
