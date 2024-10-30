@@ -6,6 +6,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "stb_image.h"
 
 #include "Shader.h"
@@ -14,7 +18,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_HEIGHT = 800;
 
 
 int main()
@@ -96,6 +100,17 @@ int main()
     glEnableVertexAttribArray(2);
 
     // #################################
+	// ######### Transforms ############
+    // #################################
+
+    //glm::mat4 trans = glm::mat4(1.0);
+    //trans = glm::rotate(trans, glm::radians(33.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+
+    //unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
+    //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+    // #################################
     // ######### TEXTURE SETUP #########
     // #################################
 
@@ -171,6 +186,16 @@ int main()
 
 	    // select which shader to use
         shader.use();
+
+        // transforms
+        glm::mat4 trans = glm::mat4(1.0);
+        trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
 
