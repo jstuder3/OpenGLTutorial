@@ -38,6 +38,9 @@
     <None Include="fragment_shader.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="light_source_fragment_shader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
