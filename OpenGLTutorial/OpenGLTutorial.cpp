@@ -244,12 +244,17 @@ int main()
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
 
+        view = glm::translate(glm::mat4(1.0f), glm::vec3((float)sin(glfwGetTime()*2), (float)cos(glfwGetTime()), -3.0f));
+		shader.setMat4("view", view);
+        
         projection = glm::perspective(glm::radians(45.0f), ((float)scr_width / (float)scr_height), 0.1f, 100.f);
 		shader.setMat4("projection", projection);
 
+
+
         // transforms
         for (int i = 0; i < sizeof(cubePositions) / sizeof(cubePositions[0]); i++) {
-            float speed = 20.0f * (i+1);
+            float speed = (i % 3 == 0) ? 100.f : 0.0f;
             model = glm::translate(glm::mat4(1.0f), cubePositions[i]);
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(speed), glm::vec3(1.0f, 0.3f, 0.5f));// translation);
             shader.setMat4("model", model);
