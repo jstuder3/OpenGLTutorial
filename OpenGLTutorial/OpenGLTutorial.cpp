@@ -251,6 +251,10 @@ int main()
         shader.setFloat("light.linear", 0.09f);
 		shader.setFloat("light.quadratic", 0.032f);
 
+        shader.setVec3("light.position", camera.Position);
+        shader.setVec3("light.direction", camera.Front);
+        shader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
@@ -269,16 +273,16 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        glBindVertexArray(lightVAO);
-        lightSourceShader.use();
-		lightSourceShader.setVec3("lightColor", lightColor);
-        model = glm::translate(glm::mat4(1.0f), lightPos);
-        //model = glm::translate(glm::mat4(1.0f), -lightDir * 10.0f);
-        model = glm::scale(model, glm::vec3(0.2f));
-        lightSourceShader.setMat4("model", model);
-        lightSourceShader.setMat4("view", view);
-        lightSourceShader.setMat4("projection", projection);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+  //      glBindVertexArray(lightVAO);
+  //      lightSourceShader.use();
+		//lightSourceShader.setVec3("lightColor", lightColor);
+  //      model = glm::translate(glm::mat4(1.0f), lightPos);
+  //      //model = glm::translate(glm::mat4(1.0f), -lightDir * 10.0f);
+  //      model = glm::scale(model, glm::vec3(0.2f));
+  //      lightSourceShader.setMat4("model", model);
+  //      lightSourceShader.setMat4("view", view);
+  //      lightSourceShader.setMat4("projection", projection);
+  //      glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // swap the buffers and check and call events (e.g. window resizing callback)
         glfwSwapBuffers(window);
