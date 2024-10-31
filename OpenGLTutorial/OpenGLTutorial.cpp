@@ -37,6 +37,7 @@ float lastY = scr_height / 2.0f;
 bool firstMouse = true;
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
 
 int main()
 {
@@ -239,7 +240,8 @@ int main()
 		// shader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
 		shader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		shader.setFloat("material.shininess", 32.f);
-		shader.setVec3("light.position", lightPos);
+        shader.setVec3("light.direction", lightDir);
+		//shader.setVec3("light.position", lightPos);
         //glm::vec3 lightColor = glm::vec3(sin(glfwGetTime() * 2.0f), sin(glfwGetTime() * 0.7f), sin(glfwGetTime() * 1.3f));
 		glm::vec3 lightColor = glm::vec3(1.0f);
         shader.setVec3("light.ambient", lightColor * 0.2f);
@@ -267,7 +269,8 @@ int main()
         glBindVertexArray(lightVAO);
         lightSourceShader.use();
 		lightSourceShader.setVec3("lightColor", lightColor);
-        model = glm::translate(glm::mat4(1.0f), lightPos);
+        //model = glm::translate(glm::mat4(1.0f), lightPos);
+        model = glm::translate(glm::mat4(1.0f), -lightDir * 10.0f);
         model = glm::scale(model, glm::vec3(0.2f));
         lightSourceShader.setMat4("model", model);
         lightSourceShader.setMat4("view", view);
