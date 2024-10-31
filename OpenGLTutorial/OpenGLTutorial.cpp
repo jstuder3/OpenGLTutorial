@@ -176,6 +176,42 @@ int main()
 	// ######### Light Sources #########
     // #################################
 
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3(0.7f,  0.2f,  2.0f),
+        glm::vec3(2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3(0.0f,  0.0f, -3.0f)
+    };
+    shader.use();
+
+    // directional light
+    shader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+    shader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+    shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+    shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+    //point lights
+    for (int i = 0; i < 4; i++) {
+        shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", 0.05f, 0.05f, 0.05f);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", 0.8f, 0.8f, 0.8f);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].specular", 1.0f, 1.0f, 1.0f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
+    }
+
+    // spotLight
+    shader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+    shader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+    shader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+    shader.setFloat("spotLight.constant", 1.0f);
+    shader.setFloat("spotLight.linear", 0.09f);
+    shader.setFloat("spotLight.quadratic", 0.032f);
+    shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+    shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
+
     unsigned int lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
@@ -188,8 +224,6 @@ int main()
     // #################################
 	// ######### Transforms ############
     // #################################
-
-
 
     // #################################
     // ######### TEXTURE SETUP #########
@@ -236,25 +270,11 @@ int main()
 	    // select which shader to use
         shader.use();
 		shader.setVec3("viewPos", camera.Position);
-		// shader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-		// shader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
 		shader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		shader.setFloat("material.shininess", 32.f);
-		shader.setVec3("light.position", lightPos);
-        // shader.setVec3("light.direction", lightDir);
-        //glm::vec3 lightColor = glm::vec3(sin(glfwGetTime() * 2.0f), sin(glfwGetTime() * 0.7f), sin(glfwGetTime() * 1.3f));
-		glm::vec3 lightColor = glm::vec3(1.0f);
-        shader.setVec3("light.ambient", lightColor * 0.2f);
-        shader.setVec3("light.diffuse", lightColor * 0.5f);
-		shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        shader.setFloat("light.constant", 1.0f);
-        shader.setFloat("light.linear", 0.09f);
-		shader.setFloat("light.quadratic", 0.032f);
 
-        shader.setVec3("light.position", camera.Position);
-        shader.setVec3("light.direction", camera.Front);
-        shader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader.setVec3("spotLight.position", camera.Position);
+        shader.setVec3("spotLight.direction", camera.Front);
 
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
@@ -272,17 +292,6 @@ int main()
             shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-  //      glBindVertexArray(lightVAO);
-  //      lightSourceShader.use();
-		//lightSourceShader.setVec3("lightColor", lightColor);
-  //      model = glm::translate(glm::mat4(1.0f), lightPos);
-  //      //model = glm::translate(glm::mat4(1.0f), -lightDir * 10.0f);
-  //      model = glm::scale(model, glm::vec3(0.2f));
-  //      lightSourceShader.setMat4("model", model);
-  //      lightSourceShader.setMat4("view", view);
-  //      lightSourceShader.setMat4("projection", projection);
-  //      glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // swap the buffers and check and call events (e.g. window resizing callback)
         glfwSwapBuffers(window);

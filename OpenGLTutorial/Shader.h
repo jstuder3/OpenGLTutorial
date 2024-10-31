@@ -25,6 +25,7 @@ public:
 	void setInt(const std::string& name, int value) const;
 	void setFloat(const std::string& name, float value) const;
 	void setVec3(const std::string& name, const glm::vec3& value) const;
+	void setVec3(const std::string& name, const float x, const float y, const float z) const;
 	void setMat4(const std::string& name, const glm::mat4& mat) const;
 	void deleteShader() const;
 	void checkCompileErrors(GLuint shader, std::string type) const;
