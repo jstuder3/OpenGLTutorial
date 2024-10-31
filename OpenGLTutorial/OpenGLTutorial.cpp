@@ -271,10 +271,18 @@ int main()
 
 	    // select which shader to use
         shader.use();
-        shader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-        shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        shader.setVec3("lightPos", lightPos);
 		shader.setVec3("viewPos", camera.Position);
+		shader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+		shader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+		shader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		shader.setFloat("material.shininess", 32.f);
+		shader.setVec3("light.position", lightPos);
+        glm::vec3 lightColor = glm::vec3(sin(glfwGetTime() * 2.0f), sin(glfwGetTime() * 0.7f), sin(glfwGetTime() * 1.3f));
+        shader.setVec3("light.ambient", lightColor * 0.2f);
+        shader.setVec3("light.diffuse", lightColor * 0.5f);
+		shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+
 		// bind VAO to use the vertex data
         glBindVertexArray(VAO);
         glm::mat4 view = camera.GetViewMatrix();
@@ -294,7 +302,7 @@ int main()
 
         glBindVertexArray(lightVAO);
         lightSourceShader.use();
-        lightSourceShader.setVec3("lightPos", lightPos);
+		lightSourceShader.setVec3("lightColor", lightColor);
         model = glm::translate(glm::mat4(1.0f), lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
         lightSourceShader.setMat4("model", model);
