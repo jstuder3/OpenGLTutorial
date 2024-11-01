@@ -18,6 +18,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include <map>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -85,6 +86,10 @@ int main()
 
     // enable stencil test
     glEnable(GL_STENCIL_TEST);
+
+    // enable blending for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // #################################
 	// ########## SHADER SETUP #########
@@ -230,7 +235,7 @@ int main()
 
     unsigned int floorTexture = loadTexture("resources/textures/metal.png");
     unsigned int cubeTexture = loadTexture("resources/textures/marble.jpg");
-    unsigned int grassTexture = loadTexture("resources/textures/grass.png");
+    unsigned int transparentTexture = loadTexture("resources/textures/blending_transparent_window.png");
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -303,13 +308,23 @@ int main()
         shader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //vegetation
+        // transparent stuff
+
+        //sort
+        std::map<float, glm::vec3> sorted;
+        for (unsigned int i = 0; i < vegetation.size(); i++) {
+            float distance = glm::length(camera.Position - vegetation[i]);
+            sorted[distance] = vegetation[i];
+        }
+
+        //draw in order of distance
+
         glBindVertexArray(transparentVAO);
-        glBindTexture(GL_TEXTURE_2D, grassTexture);
-        for (unsigned int i = 0; i < vegetation.size(); i++)
+        glBindTexture(GL_TEXTURE_2D, transparentTexture);
+        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it!= sorted.rend(); ++it)
         {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, vegetation[i]);
+            model = glm::translate(model, it->second);
             shader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
