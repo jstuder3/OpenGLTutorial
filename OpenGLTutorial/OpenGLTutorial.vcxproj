@@ -149,9 +149,12 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragment_shader.glsl" />
-    <None Include="light_source_fragment_shader.glsl" />
-    <None Include="vertex_shader.glsl" />
+    <None Include="shaders\fragment_shader.glsl" />
+    <None Include="shaders\light_source_fragment_shader.glsl" />
+    <None Include="shaders\simple_shader.vert" />
+    <None Include="shaders\single_color.frag" />
+    <None Include="shaders\simple_shader.frag" />
+    <None Include="shaders\vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -161,10 +164,12 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\awesomeface.png" />
-    <Image Include="resources\container.jpg" />
-    <Image Include="resources\container2.png" />
-    <Image Include="resources\container2_specular.png" />
+    <Image Include="resources\textures\awesomeface.png" />
+    <Image Include="resources\textures\container.jpg" />
+    <Image Include="resources\textures\container2.png" />
+    <Image Include="resources\textures\container2_specular.png" />
+    <Image Include="resources\textures\marble.jpg" />
+    <Image Include="resources\textures\metal.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

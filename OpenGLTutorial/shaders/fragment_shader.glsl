@@ -66,8 +66,21 @@ vec3 CalcSpecular(vec3 specular, vec3 lightDir, vec3 normal, vec3 viewDir);
 float CalcAttenuation(float constant, float linear, float quadratic, float distance);
 float CalcIntensity(SpotLight light, vec3 lightDir);
 
+float near = 0.1f;
+float far = 100.0f;
+
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));
+}
+
 void main()
 {
+   /* float depth = LinearizeDepth(gl_FragCoord.z) / 10.0f;
+    FragColor = vec4(vec3(depth), 1.0f);
+    return;*/
+
     vec3 result = vec3(0.0f);
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
