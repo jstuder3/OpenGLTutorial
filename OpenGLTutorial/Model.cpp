@@ -71,7 +71,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene *scene) {
 	//process indices
 	for(unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];
-		assert(face.mNumIndices == 3, "Assertion Failed: Mesh doesn't have three vertices for a single face. Aborting to prevent issues.");
+		assert((face.mNumIndices == 3) && "Mesh doesn't have three vertices for a single face. Aborting to prevent issues.");
 		for(unsigned int j = 0; j < face.mNumIndices; j++) {
 			indices.push_back(face.mIndices[j]);
 		}

@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <string>
-#include <stdexcept>
+#include <sstream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -144,6 +145,13 @@ int main()
 	// #################################
     while (!glfwWindowShouldClose(window))
     {
+        // update window title based on deltatime
+        float fps = 1.0f / deltaTime;
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(1) << fps;
+        std::string title = "OpenGLTutorial - FPS: " + stream.str();
+        glfwSetWindowTitle(window, title.c_str());
+
         // set deltatime
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
@@ -206,6 +214,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     scr_height = height;
     std::cout << "framebuffer_size_callback; width: " << width << " height: " << height << '\n';
 }
+
 void processInput(GLFWwindow* window)
 {
     // terminate the window when the escape key is pressed
@@ -232,6 +241,14 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+    if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+	    // pause execution until the resume button is pressed
+        std::cout << "Paused; Press O to resume" << '\n';
+        while (glfwGetKey(window, GLFW_KEY_O) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) {
+            glfwPollEvents();
+        }
+        std::cout << "Resuming!" << '\n';
+    }
 }
 
 void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn) {
