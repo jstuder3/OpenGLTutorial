@@ -151,6 +151,8 @@
   <ItemGroup>
     <None Include="shaders\fragment_shader.glsl" />
     <None Include="shaders\light_source_fragment_shader.glsl" />
+    <None Include="shaders\render_quad_shader.frag" />
+    <None Include="shaders\render_quad_shader.vert" />
     <None Include="shaders\simple_shader.vert" />
     <None Include="shaders\single_color.frag" />
     <None Include="shaders\simple_shader.frag" />
