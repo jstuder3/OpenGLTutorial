@@ -94,7 +94,7 @@ int main()
     unsigned int framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
+    
     unsigned int textureColorbuffer;
     glGenTextures(1, &textureColorbuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
@@ -391,6 +391,7 @@ int main()
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // never draw the view quad as wireframe
         quadShader.use();
         glBindVertexArray(quadVAO);
         glDisable(GL_DEPTH_TEST);
