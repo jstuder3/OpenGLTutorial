@@ -156,6 +156,8 @@
     <None Include="shaders\simple_shader.vert" />
     <None Include="shaders\single_color.frag" />
     <None Include="shaders\simple_shader.frag" />
+    <None Include="shaders\skyboxShader.frag" />
+    <None Include="shaders\skyboxShader.vert" />
     <None Include="shaders\vertex_shader.glsl" />
   </ItemGroup>
   <ItemGroup>

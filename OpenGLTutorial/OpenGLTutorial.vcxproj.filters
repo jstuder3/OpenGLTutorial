@@ -35,13 +35,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vertex_shader.glsl">
+    <None Include="shaders\fragment_shader.glsl" />
+    <None Include="shaders\light_source_fragment_shader.glsl" />
+    <None Include="shaders\render_quad_shader.frag" />
+    <None Include="shaders\render_quad_shader.vert" />
+    <None Include="shaders\simple_shader.vert" />
+    <None Include="shaders\single_color.frag" />
+    <None Include="shaders\simple_shader.frag" />
+    <None Include="shaders\vertex_shader.glsl" />
+    <None Include="shaders\skyboxShader.vert">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="fragment_shader.glsl">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="light_source_fragment_shader.glsl">
+    <None Include="shaders\skyboxShader.frag">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
@@ -63,16 +68,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\awesomeface.png">
+    <Image Include="resources\textures\awesomeface.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\container.jpg">
+    <Image Include="resources\textures\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\container2.png">
+    <Image Include="resources\textures\container2.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="resources\container2_specular.png">
+    <Image Include="resources\textures\container2_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\marble.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\textures\metal.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
