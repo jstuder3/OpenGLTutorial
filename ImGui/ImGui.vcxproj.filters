@@ -15,28 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OpenGLTutorial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stb_image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\external\imgui\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\external\imgui\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\external\imgui\imgui_draw.cpp">
@@ -46,6 +25,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\external\imgui\imgui_widgets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\external\imgui\backends\imgui_impl_glfw.cpp">
@@ -59,38 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragment_shader.glsl" />
-    <None Include="shaders\light_source_fragment_shader.glsl" />
-    <None Include="shaders\render_quad_shader.frag" />
-    <None Include="shaders\render_quad_shader.vert" />
-    <None Include="shaders\simple_shader.vert" />
-    <None Include="shaders\single_color.frag" />
-    <None Include="shaders\simple_shader.frag" />
-    <None Include="shaders\vertex_shader.glsl" />
-    <None Include="shaders\skyboxShader.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="shaders\skyboxShader.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\external\imgui\imconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -123,24 +73,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\textures\awesomeface.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\textures\container.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\textures\container2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\textures\container2_specular.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\textures\marble.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\textures\metal.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\external\imgui\misc\debuggers\imgui.natvis" />

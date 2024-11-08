@@ -13,12 +13,15 @@
 
 #include <assimp/Importer.hpp>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 #include "stb_image.h"
 
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-#include <map>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -45,6 +48,8 @@ bool firstMouse = true;
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
 
+GLFWwindow* window;
+
 int main()
 {
     // init glfw
@@ -56,7 +61,7 @@ int main()
     Assimp::Importer b;
 
     // make a platform-independent window with glfw
-    GLFWwindow* window = glfwCreateWindow(scr_width, scr_height, "LearnOpenGL", NULL, NULL);
+    window = glfwCreateWindow(scr_width, scr_height, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -64,7 +69,7 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //enable/disable vsync; is enabled by default in OpenGL
     bool vSyncEnabled = true;
@@ -72,8 +77,8 @@ int main()
 
     // callbacks
     glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// test if we can use glad to load the opengl functions
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -84,6 +89,18 @@ int main()
 
     // make opengl viewport
     glViewport(0, 0, scr_width, scr_height);
+
+    // ImGui initialization
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
 
     // enable z-buffer
 	glEnable(GL_DEPTH_TEST);
@@ -422,6 +439,25 @@ int main()
         std::string title = "OpenGLTutorial - FPS: " + stream.str();
         glfwSetWindowTitle(window, title.c_str());
 
+        ImGui_ImplGlfw_NewFrame();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+        // ImGui::ShowDemoWindow();
+
+        {
+            ImGui::Begin("Hello there!");
+            ImGui::Text("Press ESC to terminate");
+            ImGui::Text("Press G to un-capture the mouse. Press H to capture it.");
+            ImGui::Text("Press P to pause the game and O to resume.");
+            static bool showAdditionalText = false;
+            ImGui::Checkbox("Demo window", &showAdditionalText);
+            if(showAdditionalText) {
+                ImGui::Text("This is some additional text!");
+            }
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
+
         // set deltatime
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
@@ -536,13 +572,28 @@ int main()
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
 
         // swap the buffers and check and call events (e.g. window resizing callback)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
     shader.deleteShader();
+    glfwDestroyWindow(window);
     glfwTerminate();
 
     return 0;
@@ -590,9 +641,18 @@ void processInput(GLFWwindow* window)
         }
         std::cout << "Resuming!" << '\n';
     }
+
+    if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+    if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
 }
 
 void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn) {
+    if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+        return;
 	float xPos = static_cast<float>(xPosIn);
 	float yPos = static_cast<float>(yPosIn);
     if (firstMouse) {
@@ -611,6 +671,8 @@ void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn) {
 }
 
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
+    if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+        return;
     camera.ProcessMouseScroll(static_cast<float>(yOffset));
 }
 
