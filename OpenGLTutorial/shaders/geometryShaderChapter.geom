@@ -25,7 +25,7 @@ vec3 GetNormal()
 
 vec4 explode(vec4 position, vec3 worldPos, vec3 normal){
 	float magnitude = 0.5f;
-	vec3 direction = normal * (clamp(sin(time*4 + worldPos.x), 0, 1)) * magnitude;
+	vec3 direction = normal * ((sin(time*4 + worldPos.x)+1.0) / 2) * magnitude;
 	return position + vec4(direction, 0.0);
 }
 
@@ -37,11 +37,11 @@ void main(){
 	OutData.TexCoords = InData[0].TexCoords;
 	EmitVertex();
 
-	gl_Position = explode(gl_in[1].gl_Position, InData[0].WorldPos, normal);
+	gl_Position = explode(gl_in[1].gl_Position, InData[1].WorldPos, normal);
 	OutData.TexCoords = InData[1].TexCoords;
 	EmitVertex();
 
-	gl_Position = explode(gl_in[2].gl_Position, InData[0].WorldPos, normal);
+	gl_Position = explode(gl_in[2].gl_Position, InData[2].WorldPos, normal);
 	OutData.TexCoords = InData[2].TexCoords;
 	EmitVertex();
 
