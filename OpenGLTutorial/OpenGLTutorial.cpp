@@ -37,8 +37,8 @@ float deltaTime = 0.01f;
 float lastFrame = 0.0f;
 
 bool wireframe = false;
-float lastWireFrameToggle = 0.0f;
-float wireFrameToggleCooldown = 0.2f;
+float lastButtonToggle = 0.0f;
+float buttonToggleCooldown = 0.2f;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = scr_width / 2.0f;
@@ -49,6 +49,7 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
 
 GLFWwindow* window;
+bool vSyncEnabled = true;
 
 int main()
 {
@@ -69,12 +70,10 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //enable/disable vsync; is enabled by default in OpenGL
-    bool vSyncEnabled = true;
     glfwSwapInterval(vSyncEnabled);
-
     // callbacks
     glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -115,14 +114,15 @@ int main()
 	// ########## SHADER SETUP #########
 	// #################################
 
-	Shader shader("shaders/geometryShaderChapter.vert", "shaders/geometryShaderChapter.geom", "shaders/geometryShaderChapter.frag");
-    shader.use();
+	Shader shader("shaders/geometryShaderChapter.vert", "shaders/geometryShaderChapter.geom", "shaders/unlitTextureShader.frag");
+    //Shader shader("shaders/geometryShaderChapter.vert", "shaders/unlitTextureShader.frag");
+	shader.use();
 
     //  #################################
 	//  ########## VERTEX DATA ##########
 	//  #################################
 
-    // Model ourModel("resources/backpack/backpack.obj");
+    Model ourModel("resources/models/backpack/backpack.obj");
 
     //float cubeVertices[] = {
     //    // Back face
@@ -176,17 +176,17 @@ int main()
     };
 
 
-    unsigned int VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    //unsigned int VAO, VBO;
+    //glGenVertexArrays(1, &VAO);
+    //glBindVertexArray(VAO);
 
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    //glGenBuffers(1, &VBO);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    //glEnableVertexAttribArray(1);
 
     // #################################
 	// ######### Light Sources #########
@@ -228,9 +228,10 @@ int main()
         {
             ImGui::Begin("Info");
             ImGui::Text("Press ESC to terminate");
-            ImGui::Text("Press G to un-capture the mouse. Press H to capture it.");
+            ImGui::Text("Press G to toggle mouse capture.");
             ImGui::Text("Press I to toggle wireframe mode");
             ImGui::Text("Press P to pause the game and O to resume.");
+            ImGui::Text("Press V to toggle VSync");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / io.Framerate, io.Framerate);
             ImGui::Text("Window properties: Width: %d, Height: %d", scr_width, scr_height);
             ImGui::End();
@@ -238,8 +239,8 @@ int main()
 
 
         // set camera & perspective transforms ("update state")
-        glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+        // glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 1.0f, 100.0f);
 
         if (wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -254,13 +255,16 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
- /*       shader.setMat4("view", view);
+	    shader.setMat4("view", camera.GetViewMatrix());
         shader.setMat4("projection", projection);
-        shader.setVec3("cameraPos", camera.Position);*/
+        shader.setMat4("model", glm::mat4(1.0f));
+        shader.setFloat("time", static_cast<float>(glfwGetTime()));
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_POINTS, 0, 4);
-        glBindVertexArray(0);
+        ourModel.Draw(shader);
+
+        //glBindVertexArray(VAO);
+        //glDrawArrays(GL_POINTS, 0, 4);
+        //glBindVertexArray(0);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -305,8 +309,8 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
     }
 	// toggle wireframe mode
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && ((float)glfwGetTime() > lastWireFrameToggle + wireFrameToggleCooldown)) {
-		lastWireFrameToggle = (float)glfwGetTime();
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && ((float)glfwGetTime() > lastButtonToggle + buttonToggleCooldown)) {
+		lastButtonToggle = (float)glfwGetTime();
 		wireframe = !wireframe;
 	}
 
@@ -323,20 +327,44 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+
+    // PAUSE toggle
     if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
 	    // pause execution until the resume button is pressed
-        std::cout << "Paused; Press O to resume" << '\n';
-        while (glfwGetKey(window, GLFW_KEY_O) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS) {
+        lastButtonToggle = (float)glfwGetTime();
+        std::cout << "Paused; Press P to resume" << '\n';
+        while(((float)glfwGetTime() <= lastButtonToggle + buttonToggleCooldown)) {
+	        //do nothing
+        }
+        glfwPollEvents(); // update the button state once so it doesn't immediately resume
+        while ((glfwGetKey(window, GLFW_KEY_P) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)) {
             glfwPollEvents();
+        }
+        // quick pause to prevent immediately pausing again
+        lastButtonToggle = (float)glfwGetTime();
+        while (((float)glfwGetTime() <= lastButtonToggle + buttonToggleCooldown)) {
+        	//do nothing
         }
         std::cout << "Resuming!" << '\n';
     }
 
-    if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    // MOUSE CAPTURE toggle
+    if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS && ((float)glfwGetTime() > lastButtonToggle + buttonToggleCooldown)) {
+        lastButtonToggle = (float)glfwGetTime();
+        unsigned int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
+        if (cursorMode == GLFW_CURSOR_DISABLED) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+        else if(cursorMode == GLFW_CURSOR_NORMAL) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
     }
-    if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // VSYNC toggle
+    if(glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS && ((float)glfwGetTime() > lastButtonToggle + buttonToggleCooldown)) {
+        lastButtonToggle = (float)glfwGetTime();
+		vSyncEnabled = !vSyncEnabled;
+        glfwSwapInterval(vSyncEnabled);
     }
 }
 
