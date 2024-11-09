@@ -5,6 +5,7 @@ layout (location = 2) in vec2 aTexCoords;
 out VertexData {
 	vec2 TexCoords;
 	vec3 Normal;
+	vec3 WorldPos;
 } OutData;
 
 uniform mat4 projection;
@@ -14,5 +15,6 @@ uniform mat4 model;
 void main()
 {
 	OutData.TexCoords = aTexCoords;
+	OutData.WorldPos = vec3(model * vec4(aPos, 1.0));
     gl_Position = projection * view * model * vec4(aPos, 1.0); 
 }
