@@ -74,6 +74,9 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="shaders\geometryShaderChapter.vert" />
+    <None Include="shaders\geometryShaderChapter.frag" />
+    <None Include="shaders\geometryShaderChapter.geom" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

@@ -18,6 +18,8 @@ public:
 
 	// constructor reads and builds the shader
 	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(const char* vertexPath, const char* geometryPath, const char* fragmentPath);
+	unsigned int loadAndCompileShader(const char* shaderPath, GLenum shaderType);
 	//use/activate the shader
 	void use();
 	// utility uniform functions
