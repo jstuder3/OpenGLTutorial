@@ -40,7 +40,8 @@ bool wireframe = false;
 float lastButtonToggle = 0.0f;
 float buttonToggleCooldown = 0.2f;
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+//Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 50.0f));
 float lastX = scr_width / 2.0f;
 float lastY = scr_height / 2.0f;
 bool firstMouse = true;
@@ -115,65 +116,74 @@ int main()
     // Shader normalShader("shaders/normalsShader.vert", "shaders/normalsShader.geom", "shaders/normalsShader.frag");
     // normalShader.use();
 
-    Shader shader("shaders/instancingShader.vert", "shaders/instancingShader.frag");
-
+    Shader shader("shaders/simple_shader.vert", "shaders/unlitTextureShader.frag");
+    shader.use();
+    Shader instanceShader("shaders/instancingShader.vert", "shaders/unlitTextureShader.frag");
+    instanceShader.use();
     //  #################################
 	//  ########## VERTEX DATA ##########
 	//  #################################
 
     // Model ourModel("resources/models/backpack/backpack.obj");
+    Model planetModel("resources/models/planet/planet.obj");
+    Model asteroidModel("resources/models/rock/rock.obj");
 
-    float quadVertices[] = {
-        // positions     // colors
-        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-        -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+    unsigned int amount = 50000;
+    glm::mat4* modelMatrices;
+    modelMatrices = new glm::mat4[amount];
+    srand((float)glfwGetTime());
+    float radius = 50.0f;
+    float offset = 2.5f;
 
-        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-         0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-    };
+    for(unsigned int i = 0; i < amount; i++) {
+        glm::mat4 model = glm::mat4(1.0f);
+        //translate along circle in range[-offset, offset];
+        float angle = (float)i / (float)amount * 360.f;
+        float displacement = (rand() & (int)(2 * offset * 100)) / 100.0f - offset;
+        float x = sin(angle) * radius + displacement;
+        displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+        float y = displacement * 0.4f;
+        displacement = (rand() % (int)(2 * offset * 100)) / 100.0 - offset;
+        float z = cos(angle) * radius + displacement;
+        model = glm::translate(model, glm::vec3(x, y, z));
 
-    GLuint quadVAO, quadVBO;
-    glGenVertexArrays(1, &quadVAO);
-    glBindVertexArray(quadVAO);
+        // random scale
+        float scale = (rand() % 20) / 100.0f + 0.05f;
+        model = glm::scale(model, glm::vec3(scale));
 
-    glGenBuffers(1, &quadVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+        //random rotation
+        float rotAngle = (rand() % 360);
+        model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glm::vec2 translations[100];
-    int index = 0;
-
-    for(int y = -10; y < 10; y += 2) {
-	    for(int x = -10; x < 10; x += 2) {
-			constexpr float offset = 0.1f;
-            glm::vec2 translation;
-            translation.x = (float)x / 10.0f + offset;
-            translation.y = (float)y / 10.0f + offset;
-            translations[index++] = translation;
-	    }
+        // add to model matrices
+        modelMatrices[i] = model;
     }
 
-    GLuint instanceVBO;
-    glGenBuffers(1, &instanceVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(2);
-    glVertexAttribDivisor(2, 1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
+    for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++) {
+        unsigned int VAO = asteroidModel.meshes[i].VAO;
+        glBindVertexArray(VAO);
+        std::size_t vec4Size = sizeof(glm::vec4);
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
 
-    shader.use();
-    
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
+    }
 
     // #################################
 	// ######### Light Sources #########
@@ -218,15 +228,16 @@ int main()
             ImGui::Text("Press G to toggle mouse capture.");
             ImGui::Text("Press I to toggle wireframe mode");
             ImGui::Text("Press P to pause the game and O to resume.");
-            ImGui::Text("Press V to toggle VSync");
+            ImGui::Text("Press V to toggle VSync (currently %s)", vSyncEnabled ? "enabled" : "disabled");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / io.Framerate, io.Framerate);
             ImGui::Text("Window properties: Width: %d, Height: %d", scr_width, scr_height);
+            ImGui::Text("Camera location: %.3f / %.3f  / %.3f", camera.Position.x, camera.Position.y, camera.Position.z);
             ImGui::End();
         }
 
         // set camera & perspective transforms ("update state")
         // glm::mat4 view = camera.GetViewMatrix();
-        // glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
         if (wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -241,13 +252,29 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
-        // shader.setMat4("projection", projection);
-	    // shader.setMat4("view", camera.GetViewMatrix());
+        shader.setMat4("projection", projection);
+	    shader.setMat4("view", camera.GetViewMatrix());
         // shader.setMat4("model", glm::mat4(1.0f));
         // shader.setFloat("time", static_cast<float>(glfwGetTime()));
-        glBindVertexArray(quadVAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+        shader.setMat4("model", model);
+        planetModel.Draw(shader);
+
+        instanceShader.use();
+        instanceShader.setMat4("projection", projection);
+        instanceShader.setMat4("view", camera.GetViewMatrix());
+        for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++) {
+            glBindVertexArray(asteroidModel.meshes[i].VAO);
+            glDrawElementsInstanced(GL_TRIANGLES, asteroidModel.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
+        }
+
+        //for(unsigned int i = 0; i < amount; i++) {
+        //    shader.setMat4("model", modelMatrices[i]);
+        //    asteroidModel.Draw(shader);
+        //}
 
         // ImGui stuff
         ImGui::Render();
@@ -300,6 +327,13 @@ void processInput(GLFWwindow* window)
 	}
 
     //movement input
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        camera.MovementSpeed = BOOSTSPEED;
+    }
+    else {
+        camera.MovementSpeed = SPEED;
+    }
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

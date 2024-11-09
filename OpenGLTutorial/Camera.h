@@ -18,6 +18,7 @@ enum Camera_Movement {
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
+const float BOOSTSPEED = 10.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 60.0f;
 
