@@ -33,15 +33,15 @@ vec4 explode(vec4 position, vec3 worldPos, vec3 normal){
 void main(){
 	vec3 normal = GetNormal();
 
-	gl_Position = explode(gl_in[0].gl_Position, InData[0].WorldPos, normal);
+	gl_Position = explode(gl_in[0].gl_Position, InData[0].WorldPos, normal);//InData[0].Normal);
 	OutData.TexCoords = InData[0].TexCoords;
 	EmitVertex();
 
-	gl_Position = explode(gl_in[1].gl_Position, InData[1].WorldPos, normal);
+	gl_Position = explode(gl_in[1].gl_Position, InData[1].WorldPos, normal);//InData[0].Normal);
 	OutData.TexCoords = InData[1].TexCoords;
 	EmitVertex();
 
-	gl_Position = explode(gl_in[2].gl_Position, InData[2].WorldPos, normal);
+	gl_Position = explode(gl_in[2].gl_Position, InData[2].WorldPos, normal); //InData[0].Normal);
 	OutData.TexCoords = InData[2].TexCoords;
 	EmitVertex();
 

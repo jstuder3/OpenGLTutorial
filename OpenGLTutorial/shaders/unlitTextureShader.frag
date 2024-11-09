@@ -11,6 +11,7 @@ uniform Material material;
 in VertexData {
 	vec2 TexCoords;
 	vec3 Normal;
+	vec3 WorldPos;
 } InData;
 
 out vec4 FragColor;

@@ -78,6 +78,9 @@
     <None Include="shaders\geometryShaderChapter.frag" />
     <None Include="shaders\geometryShaderChapter.geom" />
     <None Include="shaders\unlitTextureShader.frag" />
+    <None Include="shaders\normalsShader.geom" />
+    <None Include="shaders\normalsShader.vert" />
+    <None Include="shaders\normalsShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

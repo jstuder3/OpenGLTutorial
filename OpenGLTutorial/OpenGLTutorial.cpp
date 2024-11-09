@@ -89,6 +89,9 @@ int main()
     // make opengl viewport
     glViewport(0, 0, scr_width, scr_height);
 
+	// enable z-buffer
+	glEnable(GL_DEPTH_TEST);
+
     // ImGui initialization
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -100,93 +103,23 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-    // enable z-buffer
-	glEnable(GL_DEPTH_TEST);
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
 
     // #################################
 	// ########## SHADER SETUP #########
 	// #################################
 
-	Shader shader("shaders/geometryShaderChapter.vert", "shaders/geometryShaderChapter.geom", "shaders/unlitTextureShader.frag");
-    //Shader shader("shaders/geometryShaderChapter.vert", "shaders/unlitTextureShader.frag");
+	// Shader shader("shaders/geometryShaderChapter.vert", "shaders/geometryShaderChapter.geom", "shaders/unlitTextureShader.frag");
+    Shader shader("shaders/geometryShaderChapter.vert", "shaders/unlitTextureShader.frag");
 	shader.use();
+
+    Shader normalShader("shaders/normalsShader.vert", "shaders/normalsShader.geom", "shaders/normalsShader.frag");
+    normalShader.use();
 
     //  #################################
 	//  ########## VERTEX DATA ##########
 	//  #################################
 
     Model ourModel("resources/models/backpack/backpack.obj");
-
-    //float cubeVertices[] = {
-    //    // Back face
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
-    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-    //     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
-    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
-    //    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-    //    // Front face
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-    //     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-    //     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-    //     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-    //    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-    //    // Left face
-    //    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-    //    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-    //    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-    //    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-    //    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-    //    // Right face
-    //     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-    //     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-    //     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
-    //     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-    //     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-    //     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
-    //     // Bottom face
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-    //      0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
-    //      0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-    //      0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-    //     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-    //     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-    //     // Top face
-    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-    //      0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-    //      0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
-    //      0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-    //     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-    //     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left        
-    //};
-    float points[] = {
-        -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // top-left
-         0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // top-right
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom-right
-        -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // bottom-left
-    };
-
-
-    //unsigned int VAO, VBO;
-    //glGenVertexArrays(1, &VAO);
-    //glBindVertexArray(VAO);
-
-    //glGenBuffers(1, &VBO);
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-    //glEnableVertexAttribArray(1);
 
     // #################################
 	// ######### Light Sources #########
@@ -237,10 +170,9 @@ int main()
             ImGui::End();
         }
 
-
         // set camera & perspective transforms ("update state")
         // glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 1.0f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
 
         if (wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -255,20 +187,23 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
-	    shader.setMat4("view", camera.GetViewMatrix());
         shader.setMat4("projection", projection);
+	    shader.setMat4("view", camera.GetViewMatrix());
         shader.setMat4("model", glm::mat4(1.0f));
         shader.setFloat("time", static_cast<float>(glfwGetTime()));
-
         ourModel.Draw(shader);
 
-        //glBindVertexArray(VAO);
-        //glDrawArrays(GL_POINTS, 0, 4);
-        //glBindVertexArray(0);
+        normalShader.use();
+        normalShader.setMat4("projection", projection);
+        normalShader.setMat4("view", camera.GetViewMatrix());
+        normalShader.setMat4("model", glm::mat4(1.0f));
+        ourModel.Draw(normalShader);
 
+        // ImGui stuff
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+        // necessary for docking functionality and "pull outside of main window" feature
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             GLFWwindow* backup_current_context = glfwGetCurrentContext();
