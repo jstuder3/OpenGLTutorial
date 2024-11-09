@@ -162,6 +162,8 @@
     <None Include="shaders\geometryShaderChapter.vert" />
     <None Include="shaders\geometryShaderChapter.frag" />
     <None Include="shaders\geometryShaderChapter.geom" />
+    <None Include="shaders\instancingShader.frag" />
+    <None Include="shaders\instancingShader.vert" />
     <None Include="shaders\light_source_fragment_shader.glsl" />
     <None Include="shaders\normalsShader.frag" />
     <None Include="shaders\normalsShader.vert" />

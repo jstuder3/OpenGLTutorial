@@ -109,17 +109,62 @@ int main()
 	// #################################
 
 	// Shader shader("shaders/geometryShaderChapter.vert", "shaders/geometryShaderChapter.geom", "shaders/unlitTextureShader.frag");
-    Shader shader("shaders/geometryShaderChapter.vert", "shaders/unlitTextureShader.frag");
-	shader.use();
+    // Shader shader("shaders/geometryShaderChapter.vert", "shaders/unlitTextureShader.frag");
+	//shader.use();
 
-    Shader normalShader("shaders/normalsShader.vert", "shaders/normalsShader.geom", "shaders/normalsShader.frag");
-    normalShader.use();
+    // Shader normalShader("shaders/normalsShader.vert", "shaders/normalsShader.geom", "shaders/normalsShader.frag");
+    // normalShader.use();
+
+    Shader shader("shaders/instancingShader.vert", "shaders/instancingShader.frag");
 
     //  #################################
 	//  ########## VERTEX DATA ##########
 	//  #################################
 
-    Model ourModel("resources/models/backpack/backpack.obj");
+    // Model ourModel("resources/models/backpack/backpack.obj");
+
+    float quadVertices[] = {
+        // positions     // colors
+        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+        -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+
+        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+         0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+         0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+    };
+
+    GLuint quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glBindVertexArray(quadVAO);
+
+    glGenBuffers(1, &quadVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glm::vec2 translations[100];
+    int index = 0;
+
+    for(int y = -10; y < 10; y += 2) {
+	    for(int x = -10; x < 10; x += 2) {
+			constexpr float offset = 0.1f;
+            glm::vec2 translation;
+            translation.x = (float)x / 10.0f + offset;
+            translation.y = (float)y / 10.0f + offset;
+            translations[index++] = translation;
+	    }
+    }
+
+    shader.use();
+    for(unsigned int i = 0; i < 100; i++) {
+        shader.setVec2(("offsets[" + std::to_string(i) + "]"), translations[i]);
+    }
 
     // #################################
 	// ######### Light Sources #########
@@ -172,7 +217,7 @@ int main()
 
         // set camera & perspective transforms ("update state")
         // glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
+        // glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
 
         if (wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -187,17 +232,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
-        shader.setMat4("projection", projection);
-	    shader.setMat4("view", camera.GetViewMatrix());
-        shader.setMat4("model", glm::mat4(1.0f));
-        shader.setFloat("time", static_cast<float>(glfwGetTime()));
-        ourModel.Draw(shader);
-
-        normalShader.use();
-        normalShader.setMat4("projection", projection);
-        normalShader.setMat4("view", camera.GetViewMatrix());
-        normalShader.setMat4("model", glm::mat4(1.0f));
-        ourModel.Draw(normalShader);
+        // shader.setMat4("projection", projection);
+	    // shader.setMat4("view", camera.GetViewMatrix());
+        // shader.setMat4("model", glm::mat4(1.0f));
+        // shader.setFloat("time", static_cast<float>(glfwGetTime()));
+        glBindVertexArray(quadVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 
         // ImGui stuff
         ImGui::Render();

@@ -81,6 +81,8 @@
     <None Include="shaders\normalsShader.geom" />
     <None Include="shaders\normalsShader.vert" />
     <None Include="shaders\normalsShader.frag" />
+    <None Include="shaders\instancingShader.vert" />
+    <None Include="shaders\instancingShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
