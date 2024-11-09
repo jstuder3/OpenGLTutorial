@@ -93,6 +93,7 @@ int main()
 
 	// enable z-buffer
 	glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     // enable MSAA
     glEnable(GL_MULTISAMPLE);
@@ -120,11 +121,16 @@ int main()
     // Shader normalShader("shaders/normalsShader.vert", "shaders/normalsShader.geom", "shaders/normalsShader.frag");
     // normalShader.use();
 
-    Shader shader("shaders/simple_shader.vert", "shaders/unlitTextureShader.frag");
+    Shader shader("shaders/simple_shader.vert", "shaders/fixedLightTextureShader.frag");
     shader.use();
-    Shader instanceShader("shaders/instancingShader.vert", "shaders/unlitTextureShader.frag");
+
+	Shader instanceShader("shaders/instancingShader.vert", "shaders/fixedLightTextureShader.frag");
     instanceShader.use();
-    //  #################################
+
+    Shader skyboxShader("shaders/skyboxShader.vert", "shaders/skyboxShader.frag");
+    skyboxShader.use();
+
+	//  #################################
 	//  ########## VERTEX DATA ##########
 	//  #################################
 
@@ -132,12 +138,12 @@ int main()
     Model planetModel("resources/models/planet/planet.obj");
     Model asteroidModel("resources/models/rock/rock.obj");
 
-    unsigned int amount = 50000;
+    unsigned int amount = 1000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand((float)glfwGetTime());
-    float radius = 50.0f;
-    float offset = 2.5f;
+    float radius = 40.0f;
+    float offset = 3.f;
 
     for(unsigned int i = 0; i < amount; i++) {
         glm::mat4 model = glm::mat4(1.0f);
@@ -189,6 +195,62 @@ int main()
         glBindVertexArray(0);
     }
 
+
+    float skyboxVertices[] = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glBindVertexArray(skyboxVAO);
+
+    glGenBuffers(1, &skyboxVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
     // #################################
 	// ######### Light Sources #########
     // #################################
@@ -200,6 +262,19 @@ int main()
     // #################################
     // ######### TEXTURE SETUP #########
     // #################################
+
+    std::vector<std::string> faces = {
+    "resources/textures/spaceCubemap/right.png",
+    "resources/textures/spaceCubemap/left.png",
+    "resources/textures/spaceCubemap/top.png",
+    "resources/textures/spaceCubemap/bottom.png",
+    "resources/textures/spaceCubemap/front.png",
+    "resources/textures/spaceCubemap/back.png"
+    };
+    unsigned int cubemapTexture = loadCubemap(faces);
+
+    skyboxShader.use();
+    skyboxShader.setInt("skybox", 0);
 
 	// #################################
 	// ########## RENDER LOOP ##########
@@ -255,13 +330,23 @@ int main()
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::vec4 lightDir = glm::vec4(-0.2, -1.0f, -0.3f, 0.0f);
+        lightDir = glm::vec4(glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.3f, 0.7f, 0.1f)) * lightDir);
+
         shader.use();
         shader.setMat4("projection", projection);
 	    shader.setMat4("view", camera.GetViewMatrix());
+        shader.setVec3("dirLight.direction",glm::vec3(lightDir));
+        shader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        shader.setVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f);
+        shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        shader.setVec3("viewPos", camera.Position);
+
         // shader.setMat4("model", glm::mat4(1.0f));
         // shader.setFloat("time", static_cast<float>(glfwGetTime()));
 
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, -0.1f * (float)glfwGetTime(), glm::vec3(0.3f, 0.7f, 0.1f));
         model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
         model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
         shader.setMat4("model", model);
@@ -270,10 +355,30 @@ int main()
         instanceShader.use();
         instanceShader.setMat4("projection", projection);
         instanceShader.setMat4("view", camera.GetViewMatrix());
+        instanceShader.setVec3("dirLight.direction", glm::vec3(lightDir));
+        // instanceShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        instanceShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        instanceShader.setVec3("dirLight.diffuse", 0.3f, 0.3f, 0.3f);
+        instanceShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        instanceShader.setVec3("viewPos", camera.Position);
+        instanceShader.setFloat("time", (float)glfwGetTime());
+        instanceShader.setMat4("additionalRotate", glm::rotate(glm::mat4(1.0), -0.1f * ((float)glfwGetTime()), glm::vec3(0.f, 1.f, 0.f)));
+        instanceShader.setMat4("additionalRotate2", glm::rotate(glm::mat4(1.0), -1.f * ((float)glfwGetTime()), glm::vec3(0.5f, 0.8f, 0.2f)));
+
         for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++) {
             glBindVertexArray(asteroidModel.meshes[i].VAO);
             glDrawElementsInstanced(GL_TRIANGLES, asteroidModel.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
         }
+
+        glDepthMask(GL_FALSE);
+        skyboxShader.use();
+        skyboxShader.setMat4("view", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+        skyboxShader.setMat4("projection", projection);
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
 
         //for(unsigned int i = 0; i < amount; i++) {
         //    shader.setMat4("model", modelMatrices[i]);

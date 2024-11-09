@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="shaders\fixedLightTextureShader.frag" />
     <None Include="shaders\fragment_shader.glsl" />
     <None Include="shaders\geometryShaderChapter.vert" />
     <None Include="shaders\geometryShaderChapter.frag" />
