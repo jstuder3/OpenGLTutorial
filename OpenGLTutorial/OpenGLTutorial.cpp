@@ -172,6 +172,8 @@ int main()
         modelMatrices[i] = model;
     }
 
+    std::random_shuffle(&modelMatrices[0], &modelMatrices[amount - 1]);
+
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
