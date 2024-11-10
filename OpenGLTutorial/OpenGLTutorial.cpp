@@ -98,6 +98,9 @@ int main()
     // enable MSAA
     glEnable(GL_MULTISAMPLE);
 
+    //enable gamma correction
+    glEnable(GL_FRAMEBUFFER_SRGB);
+
     // ImGui initialization
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -138,7 +141,7 @@ int main()
     Model planetModel("resources/models/planet/planet.obj");
     Model asteroidModel("resources/models/rock/rock.obj");
 
-    unsigned int amount = 1000;
+    int amount = 1000000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand((float)glfwGetTime());
@@ -173,6 +176,8 @@ int main()
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+    amount = 1000;
 
     for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++) {
         unsigned int VAO = asteroidModel.meshes[i].VAO;
@@ -311,6 +316,8 @@ int main()
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / io.Framerate, io.Framerate);
             ImGui::Text("Window properties: Width: %d, Height: %d", scr_width, scr_height);
             ImGui::Text("Camera location: %.3f / %.3f  / %.3f", camera.Position.x, camera.Position.y, camera.Position.z);
+            ImGui::Text("Number of asteroids: %d", amount);
+            ImGui::SliderInt("Number of asteroids", &amount, 1, 100000, "%d", ImGuiSliderFlags_Logarithmic);
             ImGui::End();
         }
 

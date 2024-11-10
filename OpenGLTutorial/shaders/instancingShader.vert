@@ -19,7 +19,14 @@ uniform mat4 additionalRotate;
 uniform mat4 additionalRotate2;
 
 void main(){
-	gl_Position = projection * view * additionalRotate * instanceMatrix  * additionalRotate2 * vec4(aPos+vec3(cos(time + gl_InstanceID) * 2, sin(time + gl_InstanceID) * 2, 0.0f), 1.0f);
+	mat4 additionalRotate2Adjusted = additionalRotate2;
+    if(gl_InstanceID%2 == 0){
+		additionalRotate2Adjusted = transpose(additionalRotate2Adjusted);
+	}
+	if(gl_InstanceID%5 == 0){
+		additionalRotate2Adjusted = additionalRotate2Adjusted * additionalRotate2Adjusted;
+	}
+	gl_Position = projection * view * additionalRotate * instanceMatrix  * additionalRotate2Adjusted * vec4(aPos+vec3(cos(time + gl_InstanceID) * 2, sin(time + gl_InstanceID) * 2, 0.0f), 1.0f);
 	OutData.Normal = normalize(mat3(transpose(inverse(additionalRotate * instanceMatrix  * additionalRotate2))) * aNormal);
 	OutData.TexCoords = aTexCoords;
 	OutData.FragPos = vec3(instanceMatrix * vec4(aPos, 1.0f));
