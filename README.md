@@ -7,4 +7,5 @@ Example of a completely instanced asteroid belt I made. There are only three dra
 ![AsteroidDemo-ezgif com-optimize (2)](https://github.com/user-attachments/assets/c1853a0d-c04b-4951-9cb9-9ecab6da77c6)
 
 Models taken from https://learnopengl.com/Advanced-OpenGL/Instancing
+
 Skybox taken from https://www.spacespheremaps.com/hdr-spheremaps/
