@@ -91,6 +91,8 @@
     <None Include="shaders\cubemapDepthShader.vert" />
     <None Include="shaders\cubemapDepthShader.geom" />
     <None Include="shaders\cubemapDepthShader.frag" />
+    <None Include="shaders\normalMapShader.vert" />
+    <None Include="shaders\normalMapShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

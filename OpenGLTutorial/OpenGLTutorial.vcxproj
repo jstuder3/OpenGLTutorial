@@ -170,6 +170,8 @@
     <None Include="shaders\instancingShader.frag" />
     <None Include="shaders\instancingShader.vert" />
     <None Include="shaders\light_source_fragment_shader.glsl" />
+    <None Include="shaders\normalMapShader.frag" />
+    <None Include="shaders\normalMapShader.vert" />
     <None Include="shaders\normalsShader.frag" />
     <None Include="shaders\normalsShader.vert" />
     <None Include="shaders\normalsShader.geom" />
