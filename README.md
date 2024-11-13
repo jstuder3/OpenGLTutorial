@@ -11,3 +11,7 @@ Example of a completely instanced asteroid belt I made. There are only three dra
 Models taken from https://learnopengl.com/Advanced-OpenGL/Instancing
 
 Skybox taken from https://www.spacespheremaps.com/hdr-spheremaps/
+
+### Normal maps
+
+![NormalMap-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/241930c1-26b6-4a8e-bac4-44d11430bbb5)
