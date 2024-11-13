@@ -88,6 +88,9 @@
     <None Include="shaders\emptyShader.frag" />
     <None Include="shaders\shadowShader.vert" />
     <None Include="shaders\shadowShader.frag" />
+    <None Include="shaders\cubemapDepthShader.vert" />
+    <None Include="shaders\cubemapDepthShader.geom" />
+    <None Include="shaders\cubemapDepthShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

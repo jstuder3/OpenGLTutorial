@@ -158,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="shaders\cubemapDepthShader.frag" />
+    <None Include="shaders\cubemapDepthShader.geom" />
+    <None Include="shaders\cubemapDepthShader.vert" />
     <None Include="shaders\emptyShader.frag" />
     <None Include="shaders\fixedLightTextureShader.frag" />
     <None Include="shaders\fragment_shader.glsl" />

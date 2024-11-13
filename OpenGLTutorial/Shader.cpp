@@ -57,6 +57,7 @@ unsigned int Shader::loadAndCompileShader(const char* path, GLenum shaderType) {
 	}
 	catch (std::ifstream::failure e) {
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+		std::cout << "ERRONEOUS FILE: " << path << "\n";
 	}
 
 	const char* cShaderCode = shaderCode.c_str();
