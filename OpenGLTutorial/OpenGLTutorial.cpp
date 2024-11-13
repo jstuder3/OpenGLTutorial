@@ -135,13 +135,77 @@ int main()
 	//  ########## VERTEX DATA ##########
 	//  #################################
 
+    //float planeVertices[] = {
+    //    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+    //    1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+    //    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+    //    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+    //    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+    //    0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+    //};
+
+   // float planeVertices[] = {
+   // -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+   // -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+   // 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+   // -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+   //1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+   // 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+   // };
+
+    // positions
+    glm::vec3 pos1(-1.0, 1.0, 0.0);
+    glm::vec3 pos2(-1.0, -1.0, 0.0);
+    glm::vec3 pos3(1.0, -1.0, 0.0);
+    glm::vec3 pos4(1.0, 1.0, 0.0);
+    // texture coordinates
+    glm::vec2 uv1(0.0, 1.0);
+    glm::vec2 uv2(0.0, 0.0);
+    glm::vec2 uv3(1.0, 0.0);
+    glm::vec2 uv4(1.0, 1.0);
+    // normal vector
+    glm::vec3 nm(0.0, 0.0, 1.0);
+
+    glm::vec3 edge1 = pos2 - pos1;
+    glm::vec3 edge2 = pos3 - pos1;
+    glm::vec2 deltaUV1 = uv2 - uv1;
+    glm::vec2 deltaUV2 = uv3 - uv1;
+
+    float det = 1.0 / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+
+    // note: openGL fills matrices in COLUM-MAJOR order,
+    // and mat3x2 is, contrary to one would expect from the mathematical definition, a matrix with 3 COLUMNS and 2 ROWS, 
+// not the other way around
+
+    // | V2 -V1 |
+    // | -U2 U1 |
+    glm::mat2 deltaMatrix(deltaUV2.y, -deltaUV1.y, -deltaUV2.x, deltaUV1.x); 
+
+    // | e1x e1y e1z |
+    // | e2x e2y e2z |
+    glm::mat3x2 edgeMatrix(edge1.x, edge2.x, edge1.y, edge2.y, edge1.z, edge2.z);
+
+    glm::mat3x2 tangentMatrix = det * deltaMatrix * edgeMatrix;
+
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+
+    tangent.x = tangentMatrix[0][0];
+    tangent.y = tangentMatrix[1][0];
+    tangent.z = tangentMatrix[2][0];
+
+    bitangent.x = tangentMatrix[0][1];
+    bitangent.y = tangentMatrix[1][1];
+    bitangent.z = tangentMatrix[2][1];
+
     float planeVertices[] = {
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        // positions          // normals       // uv      // tangent          // bitangent
+        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
+        pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
+        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
+        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
+        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
+        pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z
     };
 
     GLuint planeVAO, planeVBO;
@@ -153,9 +217,15 @@ int main()
     // link vertex attributes
     glBindVertexArray(planeVAO);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
     glBindVertexArray(0);
 
     // #################################
@@ -178,7 +248,7 @@ int main()
     unsigned int brickwallNormalMap = loadTexture("resources/textures/brickwall_normal.jpg");
 
     // light setup
-    glm::vec3 lightPos(0.0f, 0.0f, 1.0f);
+    glm::vec3 lightPos(0.5f, 0.5f, 1.0f);
     // preparations to draw from light's perspective
     float near_plane = 1.0f;
     float far_plane = 25.0f;
@@ -203,7 +273,7 @@ int main()
     	// input
         processInput(window);
 
-        lightPos.x = static_cast<float>(sin(glfwGetTime() * 4.f) * 1.f);
+        // lightPos.x = static_cast<float>(sin(glfwGetTime() * 4.f) * 1.f);
 
         ImGui_ImplGlfw_NewFrame();
         ImGui_ImplOpenGL3_NewFrame();
@@ -235,12 +305,15 @@ int main()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 model(1.0f);
+        // model = glm::rotate(model, sin((float)glfwGetTime())*0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
+        // model = glm::rotate(model, cos((float)glfwGetTime())*0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
         glViewport(0, 0, scr_width, scr_height);
         normalMapShader.use();
-        normalMapShader.setMat4("model", glm::mat4(1.0f));
+        normalMapShader.setMat4("model", model);
         normalMapShader.setMat4("view", view);
         normalMapShader.setMat4("projection", projection);
         normalMapShader.setVec3("viewPos", camera.Position);
@@ -418,8 +491,12 @@ unsigned int loadTexture(char const* path)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         }
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // enable anisotropic filtering for good texture quality at steep angles
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
 
         stbi_image_free(data);
     }
