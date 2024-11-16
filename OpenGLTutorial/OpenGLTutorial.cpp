@@ -129,6 +129,7 @@ int main()
     normalMapShader.use();
     normalMapShader.setInt("diffuseMap", 0);
     normalMapShader.setInt("normalMap", 1);
+    normalMapShader.setInt("depthMap", 2);
 
 
 	//  #################################
@@ -171,41 +172,51 @@ int main()
     glm::vec2 deltaUV1 = uv2 - uv1;
     glm::vec2 deltaUV2 = uv3 - uv1;
 
-    float det = 1.0 / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+    float det;
+    //glm::mat2 deltaMatrix;
+    //glm::mat3x2 edgeMatrix, tangentMatrix;
+    glm::vec3 tangent1, bitangent1, tangent2, bitangent2;
 
-    // note: openGL fills matrices in COLUM-MAJOR order,
-    // and mat3x2 is, contrary to one would expect from the mathematical definition, a matrix with 3 COLUMNS and 2 ROWS, 
-// not the other way around
+    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
-    // | V2 -V1 |
-    // | -U2 U1 |
-    glm::mat2 deltaMatrix(deltaUV2.y, -deltaUV1.y, -deltaUV2.x, deltaUV1.x); 
+    tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tangent1 = glm::normalize(tangent1);
 
-    // | e1x e1y e1z |
-    // | e2x e2y e2z |
-    glm::mat3x2 edgeMatrix(edge1.x, edge2.x, edge1.y, edge2.y, edge1.z, edge2.z);
+    bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitangent1 = glm::normalize(bitangent1);
 
-    glm::mat3x2 tangentMatrix = det * deltaMatrix * edgeMatrix;
+    // triangle 2
+    // ----------
+    edge1 = pos3 - pos1;
+    edge2 = pos4 - pos1;
+    deltaUV1 = uv3 - uv1;
+    deltaUV2 = uv4 - uv1;
 
-    glm::vec3 tangent;
-    glm::vec3 bitangent;
+    f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
-    tangent.x = tangentMatrix[0][0];
-    tangent.y = tangentMatrix[1][0];
-    tangent.z = tangentMatrix[2][0];
+    tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+    tangent2 = glm::normalize(tangent2);
 
-    bitangent.x = tangentMatrix[0][1];
-    bitangent.y = tangentMatrix[1][1];
-    bitangent.z = tangentMatrix[2][1];
+
+    bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+    bitangent2 = glm::normalize(bitangent2);
 
     float planeVertices[] = {
         // positions          // normals       // uv      // tangent          // bitangent
-        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
-        pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
-        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
-        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
-        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z,
-        pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent.x, tangent.y, tangent.z, bitangent.x, bitangent.y, bitangent.z
+        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+        pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+        pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
     };
 
     GLuint planeVAO, planeVBO;
@@ -224,6 +235,7 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+    // can technically leave away the bitangent because we can retrieve it via with a cross product
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
     glBindVertexArray(0);
@@ -244,8 +256,13 @@ int main()
     // ######### TEXTURE SETUP #########
     // #################################
 
-    unsigned int brickwallTexture = loadTexture("resources/textures/brickwall.jpg");
-    unsigned int brickwallNormalMap = loadTexture("resources/textures/brickwall_normal.jpg");
+    //unsigned int brickwallTexture = loadTexture("resources/textures/bricks2.jpg");
+    //unsigned int brickwallNormalMap = loadTexture("resources/textures/bricks2_normal.jpg");
+    //unsigned int brickwallDepthMap = loadTexture("resources/textures/bricks2_disp.jpg");
+
+    unsigned int brickwallTexture = loadTexture("resources/textures/wood.png");
+    unsigned int brickwallNormalMap = loadTexture("resources/textures/toy_box_normal.png");
+    unsigned int brickwallDepthMap = loadTexture("resources/textures/toy_box_disp.png");
 
     // light setup
     glm::vec3 lightPos(0.5f, 0.5f, 1.0f);
@@ -306,8 +323,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 model(1.0f);
-        // model = glm::rotate(model, sin((float)glfwGetTime())*0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
-        // model = glm::rotate(model, cos((float)glfwGetTime())*0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+    	model = glm::rotate(model, sin((float)glfwGetTime())*0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, cos((float)glfwGetTime())*0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
@@ -318,12 +335,17 @@ int main()
         normalMapShader.setMat4("projection", projection);
         normalMapShader.setVec3("viewPos", camera.Position);
         normalMapShader.setVec3("lightPos", lightPos);
+        /*normalMapShader.setFloat("heightScale", (sin((float)glfwGetTime()*10)+1.0f) * 0.05f);*/
+        normalMapShader.setFloat("heightScale", 0.25f);
         glBindVertexArray(planeVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, brickwallTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, brickwallNormalMap);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, brickwallDepthMap);
+    	glDrawArrays(GL_TRIANGLES, 0, 6);
+
         glBindVertexArray(0);
         
         // ImGui stuff
