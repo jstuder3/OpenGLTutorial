@@ -1,5 +1,7 @@
 #version 330 core
-out vec4 FragColor;
+//out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
 
 in VertexData {
 	vec3 FragPos;
@@ -17,6 +19,7 @@ uniform float heightScale;
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir);
 
 void main(){
+	vec3 lightColor = vec3(10.f);
 
 	vec3 fragPos = InData.TangentFragPos;
 	vec3 lightPos = InData.TangentLightPos;
@@ -41,13 +44,21 @@ void main(){
 	vec3 ambient = texture(diffuseMap, texCoords).rgb * 0.05f;
 
 	vec3 lightDirection = normalize(lightPos - fragPos);
-	vec3 diffuse = max(dot(lightDirection, normal), 0.0f) * texture(diffuseMap, texCoords).rgb * 0.5f;
+	vec3 diffuse = max(dot(lightDirection, normal), 0.0f) * texture(diffuseMap, texCoords).rgb * 0.5f * lightColor;
 
 	vec3 viewDirection = normalize(viewPos - fragPos);
 	vec3 halfwayVector = normalize(lightDirection + viewDirection);
-	vec3 specular = pow(max(0.0f, dot(halfwayVector, normal)), 512.0f) * texture(diffuseMap, texCoords).rgb * 1.0f;
+	vec3 specular = pow(max(0.0f, dot(halfwayVector, normal)), 512.0f) * texture(diffuseMap, texCoords).rgb * 1.0f * lightColor;
 
 	FragColor = vec4(ambient + diffuse + specular, 1.0);
+
+	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness > 1.0f){
+		BrightColor = FragColor;
+	}
+	else{
+			BrightColor = vec4(0.0f);
+	}
 
 ////	FragColor = vec4(1.0f);
 //////	vec3 normal = texture(normalMap, InData.TexCoords).rgb;

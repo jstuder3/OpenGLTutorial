@@ -93,6 +93,10 @@
     <None Include="shaders\cubemapDepthShader.frag" />
     <None Include="shaders\normalMapShader.vert" />
     <None Include="shaders\normalMapShader.frag" />
+    <None Include="shaders\toneMappingShader.vert" />
+    <None Include="shaders\toneMappingShader.frag" />
+    <None Include="shaders\gaussianBlur.frag" />
+    <None Include="shaders\passThrough.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

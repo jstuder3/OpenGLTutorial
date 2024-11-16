@@ -164,6 +164,7 @@
     <None Include="shaders\emptyShader.frag" />
     <None Include="shaders\fixedLightTextureShader.frag" />
     <None Include="shaders\fragment_shader.glsl" />
+    <None Include="shaders\gaussianBlur.frag" />
     <None Include="shaders\geometryShaderChapter.vert" />
     <None Include="shaders\geometryShaderChapter.frag" />
     <None Include="shaders\geometryShaderChapter.geom" />
@@ -175,6 +176,7 @@
     <None Include="shaders\normalsShader.frag" />
     <None Include="shaders\normalsShader.vert" />
     <None Include="shaders\normalsShader.geom" />
+    <None Include="shaders\passThrough.vert" />
     <None Include="shaders\render_quad_shader.frag" />
     <None Include="shaders\render_quad_shader.vert" />
     <None Include="shaders\shadowShader.frag" />
@@ -185,6 +187,8 @@
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\skyboxShader.frag" />
     <None Include="shaders\skyboxShader.vert" />
+    <None Include="shaders\toneMappingShader.frag" />
+    <None Include="shaders\toneMappingShader.vert" />
     <None Include="shaders\unlitTextureShader.frag" />
     <None Include="shaders\vertex_shader.glsl" />
   </ItemGroup>
