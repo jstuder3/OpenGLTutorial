@@ -3,6 +3,7 @@
 
 Model::Model(const char *path) {
 	loadModel(path);
+	std::cout << "Finished loading model at path: " << path << std::endl;
 }
 
 void Model::Draw(Shader &shader) {
@@ -81,11 +82,21 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene *scene) {
 	//process materials
 	if(mesh->mMaterialIndex>=0) {
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		// diffuse
 		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+		// specular
 		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+		// normal
+		std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
+		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+		// height
+		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
+		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 	}
 
 	return Mesh(vertices, indices, textures);

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <string>
 #include <sstream>
@@ -82,10 +83,10 @@ int main()
     glfwSwapInterval(vSyncEnabled);
     // callbacks
     glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// test if we can use glad to load the opengl functions
+    // test if we can use glad to load the opengl functions
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -95,8 +96,8 @@ int main()
     // make opengl viewport
     glViewport(0, 0, scr_width, scr_height);
 
-	// enable z-buffer
-	glEnable(GL_DEPTH_TEST);
+    // enable z-buffer
+    glEnable(GL_DEPTH_TEST);
     // glDepthFunc(GL_LEQUAL);
 
     // enable MSAA
@@ -105,7 +106,7 @@ int main()
     //enable gamma correction
     // glEnable(GL_FRAMEBUFFER_SRGB);
 
-	// glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     // glCullFace(GL_BACK);
 
     // ImGui initialization
@@ -119,195 +120,139 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
 
-
     // #################################
-	// ########## SHADER SETUP #########
-	// #################################
-
-    Shader renderQuadShader("shaders/toneMappingShader.vert", "shaders/toneMappingShader.frag");
-    renderQuadShader.use();
-	renderQuadShader.setInt("hdrBuffer", 0);
-    renderQuadShader.setInt("bloomBuffer", 1);
-
-    Shader bloomBlurShader("shaders/passThrough.vert", "shaders/gaussianBlur.frag");
-    bloomBlurShader.use();
-    bloomBlurShader.setInt("image", 0);
-
-    //Shader normalMapShader("shaders/normalMapShader.vert", "shaders/normalMapShader.frag");
-    Shader normalMapShader("shaders/normalMapShader.vert", "shaders/normalMapShader.frag");
-    normalMapShader.use();
-    normalMapShader.setInt("diffuseMap", 0);
-    normalMapShader.setInt("normalMap", 1);
-    normalMapShader.setInt("depthMap", 2);
-
-
-	//  #################################
-	//  ########## VERTEX DATA ##########
-	//  #################################
-
-    //float planeVertices[] = {
-    //    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    //    1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-    //    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-    //    0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-    //    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-    //    0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-    //};
-
-   // float planeVertices[] = {
-   // -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-   // -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-   // 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-   // -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-   //1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-   // 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-   // };
-
-    // positions
-    glm::vec3 pos1(-1.0, 1.0, 0.0);
-    glm::vec3 pos2(-1.0, -1.0, 0.0);
-    glm::vec3 pos3(1.0, -1.0, 0.0);
-    glm::vec3 pos4(1.0, 1.0, 0.0);
-    // texture coordinates
-    glm::vec2 uv1(0.0, 1.0);
-    glm::vec2 uv2(0.0, 0.0);
-    glm::vec2 uv3(1.0, 0.0);
-    glm::vec2 uv4(1.0, 1.0);
-    // normal vector
-    glm::vec3 nm(0.0, 0.0, 1.0);
-
-    glm::vec3 edge1 = pos2 - pos1;
-    glm::vec3 edge2 = pos3 - pos1;
-    glm::vec2 deltaUV1 = uv2 - uv1;
-    glm::vec2 deltaUV2 = uv3 - uv1;
-
-    float det;
-    //glm::mat2 deltaMatrix;
-    //glm::mat3x2 edgeMatrix, tangentMatrix;
-    glm::vec3 tangent1, bitangent1, tangent2, bitangent2;
-
-    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-
-    tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-    tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-    tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-    tangent1 = glm::normalize(tangent1);
-
-    bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-    bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-    bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-    bitangent1 = glm::normalize(bitangent1);
-
-    // triangle 2
-    // ----------
-    edge1 = pos3 - pos1;
-    edge2 = pos4 - pos1;
-    deltaUV1 = uv3 - uv1;
-    deltaUV2 = uv4 - uv1;
-
-    f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-
-    tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-    tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-    tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-    tangent2 = glm::normalize(tangent2);
-
-
-    bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-    bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-    bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-    bitangent2 = glm::normalize(bitangent2);
-
-    float planeVertices[] = {
-        // positions          // normals       // uv      // tangent          // bitangent
-        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-        pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
-        pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
-        pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
-        pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
-    };
-
-    GLuint planeVAO, planeVBO;
-    glGenVertexArrays(1, &planeVAO);
-    glGenBuffers(1, &planeVBO);
-    // fill buffer
-    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-    // link vertex attributes
-    glBindVertexArray(planeVAO);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
-    // can technically leave away the bitangent because we can retrieve it via with a cross product
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
-    glBindVertexArray(0);
-
-    // #################################
-	// ######### Light Sources #########
+    // ########## SHADER SETUP #########
     // #################################
 
-    /*std::vector<glm::vec3> lightColors;
-    lightColors.push_back(glm::vec3(200.0f, 200.0f, 200.0f));
-    lightColors.push_back(glm::vec3(0.1f, 0.0f, 0.0f));
-    lightColors.push_back(glm::vec3(0.0f, 0.0f, 0.2f));
-    lightColors.push_back(glm::vec3(0.0f, 0.1f, 0.0f));*/
+    // Shader renderQuadShader("shaders/renderQuadShader.vert", "shaders/renderQuadShader.frag");
+    // renderQuadShader.use();
+    Shader mrtShader("shaders/simpleModelShader.vert", "shaders/mrtShader.frag");
+    mrtShader.use();
+
+    Shader deferredLightingShader("shaders/deferredLightingShader.vert", "shaders/deferredLightingShader.frag");
+    deferredLightingShader.use();
+    deferredLightingShader.setInt("gPosition", 0);
+    deferredLightingShader.setInt("gNormal", 1);
+    deferredLightingShader.setInt("gAlbedoSpec", 2);
+
+	Shader lightBoxShader("shaders/simpleModelShader.vert", "shaders/lightBoxShader.frag");
+    lightBoxShader.use();
+
+    // handled in model class
+    // mrtShader.setInt("material.diffuse", 0);
+    // mrtShader.setInt("material.specular", 1);
+    // mrtShader.setInt("material.normal", 2);
+    // mrtShader.setInt("material.height", 3);
+
+    //  #################################
+    //  ########## VERTEX DATA ##########
+    //  #################################
+
+    Model backpack("resources/models/backpack/backpack.obj");
+    std::vector<glm::vec3> objectPositions;
+    objectPositions.push_back(glm::vec3(-3.0, -0.5, -3.0));
+    objectPositions.push_back(glm::vec3(0.0, -0.5, -3.0));
+    objectPositions.push_back(glm::vec3(3.0, -0.5, -3.0));
+    objectPositions.push_back(glm::vec3(-3.0, -0.5, 0.0));
+    objectPositions.push_back(glm::vec3(0.0, -0.5, 0.0));
+    objectPositions.push_back(glm::vec3(3.0, -0.5, 0.0));
+    objectPositions.push_back(glm::vec3(-3.0, -0.5, 3.0));
+    objectPositions.push_back(glm::vec3(0.0, -0.5, 3.0));
+    objectPositions.push_back(glm::vec3(3.0, -0.5, 3.0));
+
+
+    // #################################
+    // ######### Light Sources #########
+    // #################################
+
+    deferredLightingShader.use();
+    const unsigned int NR_LIGHTS = 32;
+    glm::vec3 lightPositions[NR_LIGHTS];
+	glm::vec3 lightColors[NR_LIGHTS];
+    float maxDistance[NR_LIGHTS];
+    for (unsigned int i = 0; i < NR_LIGHTS; i++){
+        float xPos = (rand() % 100) / 100.0f * 6.0f - 3.0f;
+        float yPos = (rand() % 100) / 100.0f * 6.0f - 4.0f;
+        float zPos = (rand() % 100) / 100.0f * 6.0f - 3.0f;
+
+		float rColor = (rand() % 100) / 50.f + 0.5f;
+		float gColor = (rand() % 100) / 50.f + 0.5f;
+		float bColor = (rand() % 100) / 50.f + 0.5f;
+
+        glm::vec3 lightPos(xPos, yPos, zPos);
+		glm::vec3 lightColor(rColor, gColor, bColor);
+
+		lightPositions[i] = lightPos;
+		lightColors[i] = lightColor;
+
+        deferredLightingShader.setVec3("lights[" + std::to_string(i) + "].Position", lightPos);
+		deferredLightingShader.setVec3("lights[" + std::to_string(i) + "].Color", lightColor);
+
+        //attenuation and light cutoff distance
+
+        float constant = 1.0f;
+        float linear = 0.7f;
+        float quadratic = 1.8f;
+
+        deferredLightingShader.setFloat("lights[" + std::to_string(i) + "].Constant", constant);
+		deferredLightingShader.setFloat("lights[" + std::to_string(i) + "].Linear", linear);
+		deferredLightingShader.setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);
+
+        float lightMax = std::fmaxf(std::fmaxf(lightColor.r, lightColor.g), lightColor.b);
+        float maxRadius = (-linear + std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * lightMax))) / (2 * quadratic);
+
+		deferredLightingShader.setFloat("lights[" + std::to_string(i) + "].MaxDistance", maxRadius);
+
+	}
 
     // #################################
     // ######### Frame Buffers #########
     // #################################
 
-    GLuint hdrFBO;
-    glGenFramebuffers(1, &hdrFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+    GLuint gBuffer;
+    glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
-    GLuint hdrColorBufferTexture[2];
-    glGenTextures(2, &hdrColorBufferTexture[0]);
-    for(unsigned int i = 0; i < 2; i++) {
-		glBindTexture(GL_TEXTURE_2D, hdrColorBufferTexture[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, scr_width, scr_height, 0, GL_RGBA, GL_FLOAT, NULL);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, hdrColorBufferTexture[i], 0);
-    }
+    GLuint gPosition, gNormal, gAlbedoSpec;
 
-    GLuint hdrDepthBuffer;
-    glGenRenderbuffers(1, &hdrDepthBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, hdrDepthBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, hdrDepthBuffer);
+    // position buffer
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "Framebuffer is not complete!" << std::endl;
-    }
+    // normal buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, scr_width, scr_height, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
 
-    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers(2, attachments);
+    // color and specular buffer (combined into one texture)
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, scr_width, scr_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
 
-    // ping ping framebuffer for efficient gaussian blur
-    GLuint pingpongFBO[2];
-    GLuint pingpongBuffer[2];
-	glGenFramebuffers(2, pingpongFBO);
-	glGenTextures(2, pingpongBuffer);
-    for(unsigned int i = 0; i < 2; i++) {
-		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
-		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, scr_width, scr_height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongBuffer[i], 0);
-    }
+    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
 
+	// create and attach depth buffer (renderbuffer)
+	GLuint rboDepth;
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+
+    // check for completeness
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "Framebuffer not complete!" << std::endl;
+	}
 
     // #################################
 	// ######### Transforms ############
@@ -317,21 +262,8 @@ int main()
     // ######### TEXTURE SETUP #########
     // #################################
 
-    //unsigned int brickwallTexture = loadTexture("resources/textures/bricks2.jpg");
-    //unsigned int brickwallNormalMap = loadTexture("resources/textures/bricks2_normal.jpg");
-    //unsigned int brickwallDepthMap = loadTexture("resources/textures/bricks2_disp.jpg");
-
-    unsigned int brickwallTexture = loadTexture("resources/textures/wood.png");
-    unsigned int brickwallNormalMap = loadTexture("resources/textures/toy_box_normal.png");
-    unsigned int brickwallDepthMap = loadTexture("resources/textures/toy_box_disp.png");
-
     // light setup
     glm::vec3 lightPos(0.5f, 0.5f, 1.0f);
-    // preparations to draw from light's perspective
-    float near_plane = 1.0f;
-    float far_plane = 25.0f;
-
-    float exposure = 2.0f;
 
 	// #################################
 	// ########## RENDER LOOP ##########
@@ -371,7 +303,6 @@ int main()
             ImGui::Text("Window properties: Width: %d, Height: %d", scr_width, scr_height);
             ImGui::Text("Camera location: %.3f / %.3f  / %.3f", camera.Position.x, camera.Position.y, camera.Position.z);
             ImGui::Text("Camera pitch: %.1f; Camera yaw: %.1f", camera.Pitch, camera.Yaw);
-			ImGui::SliderFloat("Exposure", &exposure, 0.1f, 5.0f, "%.3f", 0);
             ImGui::End();
         }
 
@@ -382,67 +313,73 @@ int main()
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// DRAW TO HDR FRAMEBUFFER
-		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	        glViewport(0, 0, scr_width, scr_height);
 
-	        glm::mat4 model(1.0f);
-    		model = glm::rotate(model, sin((float)glfwGetTime())*0.5f, glm::vec3(1.0f, 0.0f, 0.0f));
-	        model = glm::rotate(model, cos((float)glfwGetTime())*0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 	        glm::mat4 view = camera.GetViewMatrix();
 	        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
-	        glViewport(0, 0, scr_width, scr_height);
-	        normalMapShader.use();
-	        normalMapShader.setMat4("model", model);
-	        normalMapShader.setMat4("view", view);
-	        normalMapShader.setMat4("projection", projection);
-	        normalMapShader.setVec3("viewPos", camera.Position);
-	        normalMapShader.setVec3("lightPos", lightPos);
-	        /*normalMapShader.setFloat("heightScale", (sin((float)glfwGetTime()*10)+1.0f) * 0.05f);*/
-	        normalMapShader.setFloat("heightScale", 0.25f);
-	        glBindVertexArray(planeVAO);
-	        glActiveTexture(GL_TEXTURE0);
-	        glBindTexture(GL_TEXTURE_2D, brickwallTexture);
-	        glActiveTexture(GL_TEXTURE1);
-	        glBindTexture(GL_TEXTURE_2D, brickwallNormalMap);
-	        glActiveTexture(GL_TEXTURE2);
-	        glBindTexture(GL_TEXTURE_2D, brickwallDepthMap);
-    		glDrawArrays(GL_TRIANGLES, 0, 6);
+    		mrtShader.use();
+            mrtShader.setMat4("view", view);
+            mrtShader.setMat4("projection", projection);
+            mrtShader.setVec3("viewPos", camera.Position);
+            glm::mat4 model(1.0f);
 
-	        glBindVertexArray(0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        bool horizontal = true;
-        bool first_iteration = true;
-        int amount = 100;
-        bloomBlurShader.use();
-        for(unsigned int i = 0; i < amount; i++) {
-            glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        	bloomBlurShader.setInt("horizontal", horizontal);
-            glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, first_iteration ? hdrColorBufferTexture[1] : pingpongBuffer[!horizontal]);
-			renderQuad();
-            horizontal = !horizontal;
-            if(first_iteration) {
-                first_iteration = false;
+            for (int i = 0; i < objectPositions.size(); i++) {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, objectPositions[i]);
+                mrtShader.setMat4("model", model);
+                backpack.Draw(mrtShader);
             }
-        }
+	        glBindVertexArray(0);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // never draw the view quad as wireframe
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        // deferred lighting on the render quad
+		deferredLightingShader.use();
+        glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+        deferredLightingShader.setVec3("viewPos", camera.Position);
+        renderQuad();
+
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, scr_width, scr_height, 0, 0, scr_width, scr_height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        lightBoxShader.use();
+		lightBoxShader.setMat4("projection", projection);
+		lightBoxShader.setMat4("view", view);
+        for(unsigned int i = 0; i < NR_LIGHTS; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, lightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.125f));
+			lightBoxShader.setMat4("model", model);
+			lightBoxShader.setVec3("lightColor", lightColors[i]);
+			renderCube();
+        }
 
-        //DRAW TO RENDER QUAD
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderQuadShader.use();
-		renderQuadShader.setFloat("exposure", exposure);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, hdrColorBufferTexture[0]);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[horizontal]);
-    	renderQuad();
+        // ### DRAW TO RENDER QUAD ###
+  //      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // never draw the render quad as wireframe
+  //      renderQuadShader.use();
+  //      glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, gColorSpec);
+  //  	renderQuad();
 
         // ImGui stuff
         ImGui::Render();

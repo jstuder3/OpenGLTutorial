@@ -6,7 +6,6 @@ layout (location = 2) in vec2 aTexCoords;
 out VertexData {
 	vec2 TexCoords;
 	vec3 Normal;
-	vec3 WorldPos; 
 	vec3 FragPos;
 } OutData;
 
@@ -19,6 +18,6 @@ void main()
 	OutData.TexCoords = aTexCoords;
     OutData.Normal = normalize(mat3(transpose(inverse(model))) * aNormal);
     vec3 position = vec3(model * vec4(aPos, 1.0));
+	OutData.FragPos = position;
     gl_Position = projection * view * vec4(position, 1.0);
-	OutData.FragPos = vec3(model * vec4(aPos, 1.0));
 }
