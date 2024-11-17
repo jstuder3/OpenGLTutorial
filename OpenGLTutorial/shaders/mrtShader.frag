@@ -22,10 +22,11 @@ in vec3 FragPos;
 in vec3 Normal;
 
 uniform Material material;
+uniform bool invertedNormals;
 
 void main() {
 	gPosition = InData.FragPos;
-	gNormal = normalize(InData.Normal);
-	gAlbedoSpec.rgb = texture(material.diffuse, InData.TexCoords).rgb;
-	gAlbedoSpec.a = texture(material.specular, InData.TexCoords).r;
+	gNormal = (invertedNormals ? -1.0f : 1.0f) * normalize(InData.Normal);
+	gAlbedoSpec.rgb = invertedNormals ? vec3(1.0f) : texture(material.diffuse, InData.TexCoords).rgb;
+	gAlbedoSpec.a = invertedNormals ? 0.0f : texture(material.specular, InData.TexCoords).r;
 }

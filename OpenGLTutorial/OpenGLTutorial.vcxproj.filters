@@ -64,7 +64,7 @@
     <None Include="shaders\renderQuadShader.frag" />
     <None Include="shaders\renderQuadShader.vert" />
     <None Include="shaders\simpleModelShader.vert" />
-    <None Include="shaders\single_color.frag" />
+    <None Include="shaders\singleColorShader.frag" />
     <None Include="shaders\vertex_shader.glsl" />
     <None Include="shaders\skyboxShader.vert">
       <Filter>Source Files</Filter>
@@ -100,6 +100,12 @@
     <None Include="shaders\deferredLightingShader.vert" />
     <None Include="shaders\deferredLightingShader.frag" />
     <None Include="shaders\lightBoxShader.frag" />
+    <None Include="shaders\ssaoGeometryShader.vert" />
+    <None Include="shaders\ssaoGeometryShader.frag" />
+    <None Include="ssaoLightingShader.frag" />
+    <None Include="shaders\ssaoBlurShader.frag" />
+    <None Include="shaders\ssaoShader.frag" />
+    <None Include="shaders\ssaoShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

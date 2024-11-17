@@ -187,13 +187,19 @@
     <None Include="shaders\shadowShader.vert" />
     <None Include="shaders\simpleDepthShader.vert" />
     <None Include="shaders\simpleModelShader.vert" />
-    <None Include="shaders\single_color.frag" />
+    <None Include="shaders\singleColorShader.frag" />
     <None Include="shaders\skyboxShader.frag" />
     <None Include="shaders\skyboxShader.vert" />
+    <None Include="shaders\ssaoBlurShader.frag" />
+    <None Include="shaders\ssaoGeometryShader.vert" />
+    <None Include="shaders\ssaoGeometryShader.frag" />
+    <None Include="shaders\ssaoShader.frag" />
+    <None Include="shaders\ssaoShader.vert" />
     <None Include="shaders\toneMappingShader.frag" />
     <None Include="shaders\toneMappingShader.vert" />
     <None Include="shaders\unlitTextureShader.frag" />
     <None Include="shaders\vertex_shader.glsl" />
+    <None Include="ssaoLightingShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\external\imgui\backends\imgui_impl_glfw.h" />
