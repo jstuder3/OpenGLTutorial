@@ -106,6 +106,12 @@
     <None Include="shaders\ssaoBlurShader.frag" />
     <None Include="shaders\ssaoShader.frag" />
     <None Include="shaders\ssaoShader.vert" />
+    <None Include="shaders\pbrShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shaders\pbrShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
