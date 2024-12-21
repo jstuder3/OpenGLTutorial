@@ -6,9 +6,14 @@ in vec3 Normal;
 
 uniform vec3 camPos;
 
-uniform vec3 albedo;
-uniform float metallic;
-uniform float roughness;
+//uniform vec3 albedo;
+//uniform float metallic;
+//uniform float roughness;
+
+uniform sampler2D albedoMap;
+uniform sampler2D metallicMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D normalMap;
 uniform float ao;
 
 uniform vec3 lightPositions[4];
@@ -68,6 +73,11 @@ void main(){
 //	vec3 diffuseColor = max(0.0f, dot(N, diffuseLightDir)) * lightColors[light];
 //	FragColor = vec4(diffuseColor, 1.0f) * attenuation1;
 //	return;
+
+	vec3 albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2f));
+	float metallic = texture(metallicMap, TexCoords).r;
+	// N = texture(normalMap, TexCoords).rgb;
+	float roughness = texture(roughnessMap, TexCoords).r;
 
 	vec3 F0 = vec3(0.04f);
 	F0 = mix(F0, albedo, metallic);

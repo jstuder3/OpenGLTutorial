@@ -155,15 +155,17 @@ int main()
     // ######### TEXTURE SETUP #########
     // #################################
 
+	int albedo = loadTexture("resources/textures/rusted_iron/rust_albedo.png");
+    int metallic = loadTexture("resources/textures/rusted_iron/rust_metallic.png");
+    int normal = loadTexture("resources/textures/rusted_iron/rust_normal.png");
+    int roughness = loadTexture("resources/textures/rusted_iron/rust_roughness.png");
+
     // light setup
     glm::vec3 lightPos(0.5f, 0.5f, 1.0f);
 
 	// #################################
 	// ########## RENDER LOOP ##########
 	// #################################
-    float roughness = 0.25f;
-    float metallic = 0.0f;
-	float albedo[3] = { 0.5f, 0.0f, 0.0f };
     while (!glfwWindowShouldClose(window))
     {
         // set deltatime
@@ -198,9 +200,6 @@ int main()
             ImGui::Text("Window properties: Width: %d, Height: %d", scr_width, scr_height);
             ImGui::Text("Camera location: %.3f / %.3f  / %.3f", camera.Position.x, camera.Position.y, camera.Position.z);
             ImGui::Text("Camera pitch: %.1f; Camera yaw: %.1f", camera.Pitch, camera.Yaw);
-            ImGui::SliderFloat("SliderFloat", &roughness, 0, 1);
-			ImGui::SliderFloat("Metallic", &metallic, 0, 1);
-            ImGui::SliderFloat3("Color", albedo, 0.0f, 1.0f);
             ImGui::End();
         }
 
@@ -218,15 +217,20 @@ int main()
     	glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
+        auto val = std::make_unique<int>(42);
+		auto val2 = std::vector<int>{ 1, 2, 3, 4, 5 };
+        auto it = val2.begin();
+
         pbrShader.use();
 		pbrShader.setMat4("model", glm::mat4(1.0f));
         pbrShader.setMat4("view", view);
         pbrShader.setMat4("projection", projection);
         pbrShader.setVec3("camPos", camera.Position);
 
-		pbrShader.setVec3("albedo", albedo[0], albedo[1], albedo[2]);
-        pbrShader.setFloat("metallic", metallic);
-        pbrShader.setFloat("roughness", roughness);
+        pbrShader.setTexture("albedoMap", 0, albedo);
+		pbrShader.setTexture("normalMap", 1, normal);
+		pbrShader.setTexture("roughnessMap", 2, roughness);
+		pbrShader.setTexture("metallicMap", 3, metallic);
 		pbrShader.setFloat("ao", 1.0f);
 
 		pbrShader.setVec3("lightPositions[0]", 10.0f, 10.0f, 10.0f);
