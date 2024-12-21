@@ -128,6 +128,7 @@ int main()
 	Shader ssaoGeometryShader("shaders/ssaoGeometryShader.vert", "shaders/ssaoGeometryShader.frag");
     ssaoGeometryShader.use();
 
+	//Shader outlineShader("shaders/outlineShader.vert", "shaders/outlineShader.frag");
 
 	Shader ssaoShader("shaders/ssaoShader.vert", "shaders/ssaoShader.frag");
 	ssaoShader.use();
@@ -145,6 +146,7 @@ int main()
     deferredLightingShader.setInt("gNormal", 1);
     deferredLightingShader.setInt("gAlbedoSpec", 2);
     deferredLightingShader.setInt("ssao", 3);
+    deferredLightingShader.setInt("gDepth", 4);
 
     Shader whiteBoxShader("shaders/simpleModelShader.vert", "shaders/singleColorShader.frag");
     whiteBoxShader.use();
@@ -260,15 +262,27 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
 
+    GLuint gDepth;
+    glGenTextures(1, &gDepth);
+    glBindTexture(GL_TEXTURE_2D, gDepth);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, scr_width, scr_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepth, 0);
+
+
     unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, attachments);
 
 	// create and attach depth buffer (renderbuffer)
-	GLuint rboDepth;
-	glGenRenderbuffers(1, &rboDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	//GLuint rboDepth;
+	//glGenRenderbuffers(1, &rboDepth);
+	//glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, scr_width, scr_height);
+	//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+
 
     // check for completeness
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -332,7 +346,6 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
 
     GLuint ssaoBlurFBO, ssaoColorBufferBlur;
 	glGenFramebuffers(1, &ssaoBlurFBO);
@@ -408,7 +421,7 @@ int main()
 	        glViewport(0, 0, scr_width, scr_height);
 
 	        glm::mat4 view = camera.GetViewMatrix();
-	        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
+	        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)scr_width / (float)scr_height, 0.1f, 100.0f);
 
     		ssaoGeometryShader.use();
             ssaoGeometryShader.setMat4("view", view);
@@ -417,8 +430,8 @@ int main()
 
     		// render backpack
             glm::mat4 model(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f));
-			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0f));
+			//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             model = glm::scale(model, glm::vec3(1.0f));
             ssaoGeometryShader.setMat4("model", model);
             backpack.Draw(ssaoGeometryShader);
@@ -474,6 +487,9 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_2D, gDepth);
+
         deferredLightingShader.setVec3("viewPos", glm::vec3(0.0f));// camera.Position);
         for(int i = 0; i < NR_LIGHTS; i++) {
 			glm::vec3 lightViewPos = glm::vec3(camera.GetViewMatrix() * glm::vec4(lightPositions[i], 1.0));

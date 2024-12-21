@@ -8,6 +8,8 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D ssao;
 
+uniform sampler2D gDepth;
+
 struct Light {
 	vec3 Position;
 	vec3 Color;
@@ -21,7 +23,48 @@ const int NR_LIGHTS = 2;
 uniform Light lights[NR_LIGHTS];
 uniform vec3 viewPos;
 
+const float near = 0.1f;
+const float far = 100.0f;
+
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * near * far) / (far + near - z * (far - near));	
+}
+
+float MaxSurroundingDepth(int searchRadius){
+	float maxDepth = -1.0f;
+	vec2 texelSize = 1.0f / textureSize(gDepth, 0).xy;
+
+	for(int x = -searchRadius; x < searchRadius; x++){
+		for(int y = -searchRadius; y < searchRadius; y++){
+			vec2 coords = TexCoords + vec2(x, y) * texelSize;
+			float currDepth = texture(gDepth, coords).r;
+			maxDepth = currDepth > maxDepth ? currDepth : maxDepth;
+		}
+	}
+
+	return maxDepth;
+}
+
 void main() {
+
+	float currentDepth = texture(gDepth, TexCoords).r;
+	float maxSurroundingDepth = MaxSurroundingDepth(2);
+
+	currentDepth = LinearizeDepth(currentDepth);
+	maxSurroundingDepth = LinearizeDepth(maxSurroundingDepth);
+
+	if ((maxSurroundingDepth - currentDepth) > 0.1f){
+		FragColor = vec4(vec3(0.0f), 1.0f);
+	}
+	else{
+		FragColor = vec4(1.0f);
+	}
+	return;
+
+//	FragColor = vec4(vec3(texture(gDepth, TexCoords).r), 1.0f);
+//	return;
 //	FragColor = vec4(vec3(texture(ssao, TexCoords).r), 1.0f);
 //	return;
 	vec3 FragPos = texture(gPosition, TexCoords).rgb;
@@ -52,6 +95,8 @@ void main() {
 		lighting += lights[i].Color * spec * Specular * attenuation;
 
 	}
+
+
 
 	FragColor = vec4(lighting, 1.0f);
 	

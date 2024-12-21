@@ -180,6 +180,8 @@
     <None Include="shaders\normalsShader.frag" />
     <None Include="shaders\normalsShader.vert" />
     <None Include="shaders\normalsShader.geom" />
+    <None Include="shaders\outlineShader.frag" />
+    <None Include="shaders\outlineShader.vert" />
     <None Include="shaders\passThrough.vert" />
     <None Include="shaders\renderQuadShader.frag" />
     <None Include="shaders\renderQuadShader.vert" />
