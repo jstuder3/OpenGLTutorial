@@ -15,3 +15,8 @@ Skybox taken from https://www.spacespheremaps.com/hdr-spheremaps/
 ### Normal maps
 
 ![NormalMap-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/241930c1-26b6-4a8e-bac4-44d11430bbb5)
+
+### An outline shader I made (uses depth values of surrounding pixels to determine if an outline should be drawn or not)
+
+![OutlineShaderGif](https://github.com/user-attachments/assets/c30eb096-132d-4ed2-974c-c3cb5bafc348)
+
