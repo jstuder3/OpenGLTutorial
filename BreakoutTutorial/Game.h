@@ -8,6 +8,7 @@
 ******************************************************************/
 #pragma once
 
+#include "GameLevel.h"
 #include "SpriteRenderer.h"
 
 // Represents the current state of the game
@@ -27,6 +28,10 @@ public:
 	bool Keys[1024];
 	unsigned int Width, Height;
 	SpriteRenderer* Renderer;
+
+    std::vector<GameLevel> Levels;
+    unsigned int CurrentLevel;
+
     Game(unsigned int width, unsigned int height);
     ~Game();
     // initialize game state (load all shaders/textures/levels)
