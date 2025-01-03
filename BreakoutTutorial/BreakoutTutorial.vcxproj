@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{49a0e832-02f0-413b-a3ae-2cda4bb7de2a}</ProjectGuid>
-    <RootNamespace>OpenGLTutorial</RootNamespace>
+    <ProjectGuid>{56d28e78-05eb-4dd0-a02c-ca700728e34c}</ProjectGuid>
+    <RootNamespace>BreakoutTutorial</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,17 +70,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>G:\My Drive\Sonstiges\LearnOpenGL\Libraries\Libs;$(LibraryPath)</LibraryPath>
-    <IncludePath>G:\My Drive\Sonstiges\LearnOpenGL\Libraries\Include;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>G:\My Drive\Sonstiges\LearnOpenGL\Libraries\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>G:\My Drive\Sonstiges\LearnOpenGL\Libraries\Libs;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>false</VcpkgEnableManifest>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -144,95 +133,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\external\imgui\backends\imgui_impl_glfw.cpp" />
-    <ClCompile Include="..\external\imgui\backends\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\external\imgui\imgui.cpp" />
-    <ClCompile Include="..\external\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\external\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\external\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\external\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\external\imgui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="glad.c" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="OpenGLTutorial.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
-    <None Include="shaders\cubemapDepthShader.frag" />
-    <None Include="shaders\cubemapDepthShader.geom" />
-    <None Include="shaders\cubemapDepthShader.vert" />
-    <None Include="shaders\deferredLightingShader.frag" />
-    <None Include="shaders\deferredLightingShader.vert" />
-    <None Include="shaders\emptyShader.frag" />
-    <None Include="shaders\fixedLightTextureShader.frag" />
-    <None Include="shaders\fragment_shader.glsl" />
-    <None Include="shaders\gaussianBlur.frag" />
-    <None Include="shaders\geometryShaderChapter.vert" />
-    <None Include="shaders\geometryShaderChapter.frag" />
-    <None Include="shaders\geometryShaderChapter.geom" />
-    <None Include="shaders\instancingShader.frag" />
-    <None Include="shaders\instancingShader.vert" />
-    <None Include="shaders\lightBoxShader.frag" />
-    <None Include="shaders\light_source_fragment_shader.glsl" />
-    <None Include="shaders\mrtShader.frag" />
-    <None Include="shaders\normalMapShader.frag" />
-    <None Include="shaders\normalMapShader.vert" />
-    <None Include="shaders\normalsShader.frag" />
-    <None Include="shaders\normalsShader.vert" />
-    <None Include="shaders\normalsShader.geom" />
-    <None Include="shaders\passThrough.vert" />
-    <None Include="shaders\pbrShader.frag" />
-    <None Include="shaders\pbrShader.vert" />
-    <None Include="shaders\renderQuadShader.frag" />
-    <None Include="shaders\renderQuadShader.vert" />
-    <None Include="shaders\shadowShader.frag" />
-    <None Include="shaders\shadowShader.vert" />
-    <None Include="shaders\simpleDepthShader.vert" />
-    <None Include="shaders\simpleModelShader.vert" />
-    <None Include="shaders\singleColorShader.frag" />
-    <None Include="shaders\skyboxShader.frag" />
-    <None Include="shaders\skyboxShader.vert" />
-    <None Include="shaders\ssaoBlurShader.frag" />
-    <None Include="shaders\ssaoGeometryShader.vert" />
-    <None Include="shaders\ssaoGeometryShader.frag" />
-    <None Include="shaders\ssaoShader.frag" />
-    <None Include="shaders\ssaoShader.vert" />
-    <None Include="shaders\toneMappingShader.frag" />
-    <None Include="shaders\toneMappingShader.vert" />
-    <None Include="shaders\unlitTextureShader.frag" />
-    <None Include="shaders\vertex_shader.glsl" />
-    <None Include="ssaoLightingShader.frag" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\external\imgui\backends\imgui_impl_glfw.h" />
-    <ClInclude Include="..\external\imgui\backends\imgui_impl_opengl3.h" />
-    <ClInclude Include="..\external\imgui\backends\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="..\external\imgui\imconfig.h" />
-    <ClInclude Include="..\external\imgui\imgui.h" />
-    <ClInclude Include="..\external\imgui\imgui_internal.h" />
-    <ClInclude Include="..\external\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\external\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\external\imgui\imstb_truetype.h" />
-    <ClInclude Include="..\external\imgui\misc\cpp\imgui_stdlib.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\textures\awesomeface.png" />
-    <Image Include="resources\textures\container.jpg" />
-    <Image Include="resources\textures\container2.png" />
-    <Image Include="resources\textures\container2_specular.png" />
-    <Image Include="resources\textures\marble.jpg" />
-    <Image Include="resources\textures\metal.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="..\external\imgui\misc\debuggers\imgui.natvis" />
+    <None Include="shaders\sprite.frag" />
+    <None Include="shaders\sprite.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

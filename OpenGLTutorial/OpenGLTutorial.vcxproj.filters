@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{4cf24a2b-7ff9-4ccc-a97e-d03f82e471cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpenGLTutorial.cpp">
@@ -59,58 +62,138 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragment_shader.glsl" />
-    <None Include="shaders\light_source_fragment_shader.glsl" />
-    <None Include="shaders\renderQuadShader.frag" />
-    <None Include="shaders\renderQuadShader.vert" />
-    <None Include="shaders\simpleModelShader.vert" />
-    <None Include="shaders\singleColorShader.frag" />
-    <None Include="shaders\vertex_shader.glsl" />
-    <None Include="shaders\skyboxShader.vert">
-      <Filter>Source Files</Filter>
+    <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="shaders\cubemapDepthShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\cubemapDepthShader.geom">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\cubemapDepthShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\deferredLightingShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\deferredLightingShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\emptyShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\fixedLightTextureShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\fragment_shader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\gaussianBlur.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\geometryShaderChapter.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\geometryShaderChapter.geom">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\geometryShaderChapter.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\instancingShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\instancingShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\light_source_fragment_shader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\lightBoxShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\mrtShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\normalMapShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\normalMapShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\normalsShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\normalsShader.geom">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\normalsShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\passThrough.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\renderQuadShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\renderQuadShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shadowShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\shadowShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\simpleDepthShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\simpleModelShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\singleColorShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\ssaoBlurShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\ssaoGeometryShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\ssaoGeometryShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ssaoLightingShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\ssaoShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\ssaoShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\toneMappingShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\toneMappingShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\unlitTextureShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\vertex_shader.glsl">
+      <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\skyboxShader.frag">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
     </None>
-    <None Include="..\external\imgui\misc\debuggers\imgui.natstepfilter" />
-    <None Include="shaders\geometryShaderChapter.vert" />
-    <None Include="shaders\geometryShaderChapter.frag" />
-    <None Include="shaders\geometryShaderChapter.geom" />
-    <None Include="shaders\unlitTextureShader.frag" />
-    <None Include="shaders\normalsShader.geom" />
-    <None Include="shaders\normalsShader.vert" />
-    <None Include="shaders\normalsShader.frag" />
-    <None Include="shaders\instancingShader.vert" />
-    <None Include="shaders\instancingShader.frag" />
-    <None Include="shaders\fixedLightTextureShader.frag" />
-    <None Include="shaders\simpleDepthShader.vert" />
-    <None Include="shaders\emptyShader.frag" />
-    <None Include="shaders\shadowShader.vert" />
-    <None Include="shaders\shadowShader.frag" />
-    <None Include="shaders\cubemapDepthShader.vert" />
-    <None Include="shaders\cubemapDepthShader.geom" />
-    <None Include="shaders\cubemapDepthShader.frag" />
-    <None Include="shaders\normalMapShader.vert" />
-    <None Include="shaders\normalMapShader.frag" />
-    <None Include="shaders\toneMappingShader.vert" />
-    <None Include="shaders\toneMappingShader.frag" />
-    <None Include="shaders\gaussianBlur.frag" />
-    <None Include="shaders\passThrough.vert" />
-    <None Include="shaders\mrtShader.frag" />
-    <None Include="shaders\deferredLightingShader.vert" />
-    <None Include="shaders\deferredLightingShader.frag" />
-    <None Include="shaders\lightBoxShader.frag" />
-    <None Include="shaders\ssaoGeometryShader.vert" />
-    <None Include="shaders\ssaoGeometryShader.frag" />
-    <None Include="ssaoLightingShader.frag" />
-    <None Include="shaders\ssaoBlurShader.frag" />
-    <None Include="shaders\ssaoShader.frag" />
-    <None Include="shaders\ssaoShader.vert" />
-    <None Include="shaders\pbrShader.frag">
-      <Filter>Source Files</Filter>
+    <None Include="shaders\skyboxShader.vert">
+      <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\pbrShader.vert">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\pbrShader.frag">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
