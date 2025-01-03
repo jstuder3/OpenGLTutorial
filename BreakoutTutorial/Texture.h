@@ -6,8 +6,7 @@
 ** Creative Commons, either version 4 of the License, or (at your
 ** option) any later version.
 ******************************************************************/
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <glad/glad.h>
 
@@ -35,5 +34,3 @@ public:
     // binds the texture as the current active GL_TEXTURE_2D texture object
     void Bind() const;
 };
-
-#endif

@@ -6,8 +6,7 @@
 ** Creative Commons, either version 4 of the License, or (at your
 ** option) any later version.
 ******************************************************************/
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <string>
 
@@ -44,5 +43,3 @@ private:
     // checks if compilation or linking failed and if so, print the error logs
     void    checkCompileErrors(unsigned int object, std::string type);
 };
-
-#endif

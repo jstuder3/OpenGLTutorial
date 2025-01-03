@@ -1,23 +1,21 @@
 ﻿#include "SpriteRenderer.h"
 
-#include <iostream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+SpriteRenderer::SpriteRenderer(const Shader& shader) {
+    this->shader = shader;
+    this->initRenderData();
+}
 
-SpriteRenderer::SpriteRenderer(Shader& shader) {}
-SpriteRenderer::~SpriteRenderer() {}; 
+SpriteRenderer::~SpriteRenderer() {
+    glDeleteVertexArrays(1, &this->quadVAO);
+}
 
-void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
-{
+void SpriteRenderer::DrawSprite(const Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color) {
     this->shader.Use();
-
-    // prepare model matrix
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(position, 0.0f));
 
-	// move to quad to the origin before rotating so it turns around its center
+    // move to quad to the origin before rotating so it turns around its center
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
     model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
@@ -33,7 +31,6 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-
 }
 
 void SpriteRenderer::initRenderData() {
@@ -61,5 +58,4 @@ void SpriteRenderer::initRenderData() {
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
 }
