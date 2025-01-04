@@ -1,6 +1,7 @@
 ﻿#include "GameLevel.h"
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include "ResourceManager.h"
@@ -27,6 +28,9 @@ void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int lev
 		if(!tileData.empty()) {
 			this->init(tileData, levelWidth, levelHeight);
 		}
+	}
+	else {
+		std::cerr << "ERROR: File " << file << " was not found in GameLevel::Load" << std::endl;
 	}
 }
 

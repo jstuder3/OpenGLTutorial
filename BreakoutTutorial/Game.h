@@ -11,11 +11,30 @@
 #include "GameLevel.h"
 #include "SpriteRenderer.h"
 
+#include <tuple>
+
+
+enum Direction
+{
+	UP,
+	RIGHT,
+	DOWN,
+	LEFT
+};
+
 // Represents the current state of the game
 enum GameState {
     GAME_ACTIVE,
     GAME_MENU,
     GAME_WIN
+};
+
+struct Collision
+{
+    bool HasCollided;
+    Direction CollisionDirection;
+    glm::vec2 CollisionDifference;
+
 };
 
 // Game holds all game-related state and functionality.
@@ -40,4 +59,9 @@ public:
     void ProcessInput(float dt);
     void Update(float dt);
     void Render();
+    void DoCollisions();
+    void InitBall();
+    void InitPlayer();
+    void ResetLevel();
+    void ResetPlayer();
 };
