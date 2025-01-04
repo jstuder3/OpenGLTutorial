@@ -8,14 +8,12 @@
 ******************************************************************/
 #pragma once
 
+#include "BallObject.h"
 #include "GameLevel.h"
+#include "ParticleGenerator.h"
 #include "SpriteRenderer.h"
 
-#include <tuple>
-
-
-enum Direction
-{
+enum Direction {
 	UP,
 	RIGHT,
 	DOWN,
@@ -29,12 +27,10 @@ enum GameState {
     GAME_WIN
 };
 
-struct Collision
-{
+struct Collision {
     bool HasCollided;
     Direction CollisionDirection;
     glm::vec2 CollisionDifference;
-
 };
 
 // Game holds all game-related state and functionality.
@@ -51,6 +47,10 @@ public:
     std::vector<GameLevel> Levels;
     unsigned int CurrentLevel;
 
+    GameObject* Player;
+    BallObject* Ball;
+    ParticleGenerator* Particles;
+
     Game(unsigned int width, unsigned int height);
     ~Game();
     // initialize game state (load all shaders/textures/levels)
@@ -60,8 +60,14 @@ public:
     void Update(float dt);
     void Render();
     void DoCollisions();
-    void InitBall();
+
+	void InitBall();
     void InitPlayer();
-    void ResetLevel();
+    void InitParticles();
+
+	void ResetLevel();
     void ResetPlayer();
+
+    void LoadShaders();
+    void LoadTextures();
 };
