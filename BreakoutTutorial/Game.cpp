@@ -72,6 +72,7 @@ void Game::LoadTextures() {
     ResourceManager::LoadTexture("resources/textures/block.png", false, "block");
     ResourceManager::LoadTexture("resources/textures/block_solid.png", false, "block_solid");
     ResourceManager::LoadTexture("resources/textures/paddle.png", true, "paddle");
+    ResourceManager::LoadTexture("resources/textures/particle.png", true, "particle");
 }
 
 
@@ -266,7 +267,6 @@ void Game::InitPlayer() {
     glm::vec2 playerPos = glm::vec2(this->Width / 2.0f - PLAYER_SIZE.x / 2.0f, this->Height - PLAYER_SIZE.y);
     Player = new GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle"));
 }
-
 
 void Game::InitBall() {
     glm::vec2 ballPos = Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -BALL_RADIUS * 2.0f);

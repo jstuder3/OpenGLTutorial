@@ -51,7 +51,7 @@ unsigned int ParticleGenerator::FirstUnusedParticle() {
 void ParticleGenerator::RespawnParticle(Particle& particle, GameObject& parentObject, glm::vec2 offset) {
     float random = ((rand() % 100) - 50) / 10.0f;
     float rColor = 0.5f + ((rand() % 100) / 100.0f);
-    particle.Position = parentObject.Position; //  +random + offset;
+    particle.Position = parentObject.Position + random + offset;
     particle.Color = glm::vec4(rColor, rColor, rColor, 1.0f);
     particle.Life = 10.0f;
     particle.Velocity = parentObject.Velocity * 0.1f;

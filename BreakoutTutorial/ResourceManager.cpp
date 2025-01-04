@@ -27,7 +27,13 @@ Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderF
 
 Shader ResourceManager::GetShader(std::string name)
 {
-    return Shaders[name];
+    if (Shaders.count(name)) {
+        return Shaders[name];
+    }
+    else {
+        std::cerr << "No Shader with name '" << name << "' was not found while calling GetShader. Exiting." << std::endl;
+        exit(1);
+    }
 }
 
 Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
@@ -38,7 +44,13 @@ Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string
 
 Texture2D ResourceManager::GetTexture(std::string name)
 {
-    return Textures[name];
+    if (Textures.count(name)) {
+        return Textures[name];
+    }
+    else {
+        std::cerr << "No Texture with name '" << name << "' was not found while calling GetTexture. Exiting." << std::endl;
+        exit(1);
+    }
 }
 
 void ResourceManager::Clear()
