@@ -9,6 +9,9 @@ public:
 	float Radius;
 	bool Stuck;
 
+	bool PassThrough;
+	bool Sticky;
+
 	BallObject();
 	BallObject(glm::vec2 pos, float radius, glm::vec2 velocity, Texture2D sprite);
 

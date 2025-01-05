@@ -30,16 +30,17 @@ void main() {
 		}
 		FragColor.a = 1.0f;
 	}
-	else if (confuse) {
+	if (confuse) {
 		FragColor = vec4(1.0f - texture(scene, TexCoords).rgb, 1.0f);
 	}
-	else if (shake) {
+	
+	if (shake) {
 		for(int i = 0; i < KERNEL_SIZE; i++) {
 			FragColor += vec4(sample[i] * blurKernel[i], 0.0f);
 		}
 		FragColor.a = 1.0f;
 	}
-	else {
+	if(!chaos &&  !confuse && !shake) {
 		FragColor = texture(scene, TexCoords);
 	}
 

@@ -12,6 +12,7 @@
 #include "GameLevel.h"
 #include "ParticleGenerator.h"
 #include "PostProcessor.h"
+#include "PowerUp.h"
 #include "SpriteRenderer.h"
 
 enum Direction {
@@ -54,7 +55,9 @@ public:
     BallObject* Ball;
     ParticleGenerator* Particles;
 
-    PostProcessor* Effects;
+    PostProcessor* PostProcess;
+
+    std::vector<PowerUp> PowerUps;
 
     Game(unsigned int width, unsigned int height);
     ~Game();
@@ -75,4 +78,8 @@ public:
 
     void LoadShaders();
     void LoadTextures();
+
+    void SpawnPowerUps(GameObject& block);
+    void UpdatePowerUps(float dt);
+	void ActivatePowerUp(PowerUp& powerUp);
 };

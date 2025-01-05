@@ -11,17 +11,21 @@ uniform float time;
 void main(){
 	gl_Position = vec4(vertex.xy, 0.0f, 1.0f);
 	vec2 texture = vertex.zw;
+	
 	if(chaos){
 		float strength = 0.3f;
 		vec2 pos = vec2(texture.x + sin(time) * strength, texture.y + cos(time) * strength);
 		TexCoords = pos;
 	}
-	else if(confuse){
+	
+	if(confuse){
 		TexCoords = vec2(1.0f - texture.x, 1.0f - texture.y);
 	}
-	else{
+	
+	if(!chaos && !confuse) {
 		TexCoords = texture;
 	}
+
 	if(shake){
 		float strength = 0.01f;
 		gl_Position.x += cos(time * 10) * strength;
