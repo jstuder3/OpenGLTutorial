@@ -11,6 +11,7 @@
 #include "BallObject.h"
 #include "GameLevel.h"
 #include "ParticleGenerator.h"
+#include "PostProcessor.h"
 #include "SpriteRenderer.h"
 
 enum Direction {
@@ -44,12 +45,16 @@ public:
 	unsigned int Width, Height;
 	SpriteRenderer* Renderer;
 
+    float ShakeTime = 0.0f;
+
     std::vector<GameLevel> Levels;
     unsigned int CurrentLevel;
 
     GameObject* Player;
     BallObject* Ball;
     ParticleGenerator* Particles;
+
+    PostProcessor* Effects;
 
     Game(unsigned int width, unsigned int height);
     ~Game();

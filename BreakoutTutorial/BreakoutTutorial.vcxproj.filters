@@ -54,6 +54,9 @@
     <ClCompile Include="ParticleGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -86,6 +89,9 @@
     <ClInclude Include="ParticleGenerator.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcessor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\sprite.vert">
@@ -98,6 +104,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="shaders\particle.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\postprocess.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\postprocess.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -14,7 +14,7 @@ const float PLAYER_VELOCITY(500.0f);
 const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 const float BALL_RADIUS = 12.5f;
 
-Game::Game(unsigned int width, unsigned int height) : State(GAME_ACTIVE), Keys(), Width(width), Height(height){
+Game::Game(unsigned int width, unsigned int height) : State(GAME_ACTIVE), Keys(), Width(width), Height(height) {
 
 }
 
@@ -22,6 +22,8 @@ Game::~Game() {
     delete Renderer;
     delete Player;
     delete Ball;
+    delete Particles;
+    delete Effects;
 }
 
 void Game::Init() {
@@ -34,8 +36,10 @@ void Game::Init() {
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
     ResourceManager::GetShader("particle").Use().SetInteger("sprite", 0);
     ResourceManager::GetShader("particle").SetMatrix4("projection", projection);
+
     // set render-specific controls
     Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
+    Effects = new PostProcessor(ResourceManager::GetShader("postprocess"), this->Width, this->Height);
 
     // load textures
     LoadTextures();
@@ -43,7 +47,7 @@ void Game::Init() {
     // load levels
     GameLevel one;
     one.Load("resources/levels/one.lvl", this->Width, this->Height / 2);
-    GameLevel two; 
+    GameLevel two;
     two.Load("resources/levels/two.lvl", this->Width, this->Height / 2);
     GameLevel three;
     three.Load("resources/levels/three.lvl", this->Width, this->Height / 2);
@@ -64,6 +68,7 @@ void Game::Init() {
 void Game::LoadShaders() {
     ResourceManager::LoadShader("shaders/sprite.vert", "shaders/sprite.frag", nullptr, "sprite");
     ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particle");
+    ResourceManager::LoadShader("shaders/postprocess.vert", "shaders/postprocess.frag", nullptr, "postprocess");
 }
 
 void Game::LoadTextures() {
@@ -80,12 +85,21 @@ void Game::LoadTextures() {
 void Game::Update(float dt) {
     Ball->Move(dt, this->Width);
     this->DoCollisions();
-    if(Ball->Position.y >= this->Height) {
+    // update particle generator
+    Particles->Update(dt, *Ball, 5, glm::vec2(Ball->Radius / 2.0f));
+
+    // update post-processing effects
+    if (ShakeTime > 0.0f) {
+        ShakeTime -= dt;
+        if (ShakeTime <= 0.0f){
+            Effects->Shake = false;
+        }
+    }
+
+    if (Ball->Position.y >= this->Height) {
         this->ResetLevel();
         this->ResetPlayer();
     }
-    // update particle generator
-    Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2.0f));
 }
 
 void Game::ProcessInput(float dt) {
@@ -115,16 +129,21 @@ void Game::ProcessInput(float dt) {
 
 void Game::Render() {
     if(this->State == GAME_ACTIVE) {
-		// draw background
-        Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(this->Width, this->Height), 0.0f);
-        // draw blocks / level
-        this->Levels[this->CurrentLevel].Draw(*Renderer);
-        // draw player
-        Player->Draw(*Renderer);
-        // draw particles
-        Particles->Draw();
-        // draw ball
-    	Ball->Draw(*Renderer);
+        Effects->BeginRender();
+
+			// draw background
+	        Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(this->Width, this->Height), 0.0f);
+	        // draw blocks / level
+	        this->Levels[this->CurrentLevel].Draw(*Renderer);
+	        // draw player
+	        Player->Draw(*Renderer);
+	        // draw particles
+	        Particles->Draw();
+	        // draw ball
+    		Ball->Draw(*Renderer);
+
+        Effects->EndRender();
+        Effects->Render(static_cast<float>(glfwGetTime()));
     }
 
 
@@ -203,6 +222,10 @@ void Game::DoCollisions() {
 
         if(!box.IsSolid) {
             box.Destroyed = true;
+        }
+        else {
+            ShakeTime = 0.05f;
+            Effects->Shake = true;
         }
 
         // collision reaction
