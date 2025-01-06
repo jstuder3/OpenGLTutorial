@@ -14,6 +14,7 @@
 #include "PostProcessor.h"
 #include "PowerUp.h"
 #include "SpriteRenderer.h"
+#include "TextRenderer.h"
 
 enum Direction {
 	UP,
@@ -43,7 +44,12 @@ class Game
 public:
 	GameState State;
 	bool Keys[1024];
+    bool KeysProcessed[1024];
 	unsigned int Width, Height;
+
+    const unsigned int MAX_LIVES = 3;
+    unsigned int Lives = MAX_LIVES;
+
 	SpriteRenderer* Renderer;
 
     float ShakeTime = 0.0f;
@@ -56,6 +62,8 @@ public:
     ParticleGenerator* Particles;
 
     PostProcessor* PostProcess;
+
+    TextRenderer* Text;
 
     std::vector<PowerUp> PowerUps;
 

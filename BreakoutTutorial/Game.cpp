@@ -1,11 +1,18 @@
 ﻿#include "Game.h"
 
 #include <algorithm>
+
+
 #include <iostream>
 #include <GLFW/glfw3.h>
 
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
+
+
+#define NOMINMAX
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
 
 // player stuff
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
@@ -15,7 +22,18 @@ const float PLAYER_VELOCITY(500.0f);
 const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 const float BALL_RADIUS = 12.5f;
 
+ma_result result;
+ma_engine engine;
+
 Game::Game(unsigned int width, unsigned int height) : State(GAME_ACTIVE), Keys(), Width(width), Height(height) {
+
+    result = ma_engine_init(NULL, &engine);
+    if(result != MA_SUCCESS) {
+        std::cerr << "Failed to initialize miniaudio engine! Exiting..." << std::endl;
+        exit(1);
+    }
+
+    ma_engine_play_sound(&engine, "resources/audio/breakout.mp3", NULL);
 
 }
 
@@ -25,6 +43,8 @@ Game::~Game() {
     delete Ball;
     delete Particles;
     delete PostProcess;
+    delete Text;
+    ma_engine_uninit(&engine);
 }
 
 void Game::Init() {
@@ -45,6 +65,10 @@ void Game::Init() {
     // load textures
     LoadTextures();
 
+    // load font
+    Text = new TextRenderer(this->Width, this->Height);
+    Text->Load("resources/fonts/OCRAEXT.TTF", 24);
+
     // load levels
     GameLevel one;
     one.Load("resources/levels/one.lvl", this->Width, this->Height / 2);
@@ -64,12 +88,16 @@ void Game::Init() {
     InitPlayer();
     InitBall();
     InitParticles();
+
+    this->State = GAME_MENU;
+
 }
 
 void Game::LoadShaders() {
     ResourceManager::LoadShader("shaders/sprite.vert", "shaders/sprite.frag", nullptr, "sprite");
     ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particle");
     ResourceManager::LoadShader("shaders/postprocess.vert", "shaders/postprocess.frag", nullptr, "postprocess");
+    // text shader is loaded in TextRenderer
 }
 
 void Game::LoadTextures() {
@@ -107,8 +135,20 @@ void Game::Update(float dt) {
 
     UpdatePowerUps(dt);
 
-    if (Ball->Position.y >= this->Height) {
+    if (this->State == GAME_ACTIVE && this->Levels[this->CurrentLevel].IsCompleted()) {
         this->ResetLevel();
+        this->ResetPlayer();
+        PostProcess->Chaos = true;
+        this->State = GAME_WIN;
+    }
+
+    if (Ball->Position.y >= this->Height) {
+
+        this->Lives -= 1;
+        if(this->Lives == 0) {
+            this->ResetLevel();
+            this->State = GAME_MENU;
+        }
         this->ResetPlayer();
     }
 }
@@ -136,10 +176,34 @@ void Game::ProcessInput(float dt) {
             Ball->Stuck = false;
         }
     }
+    if (this->State == GAME_MENU) {
+        if (this->Keys[GLFW_KEY_ENTER] && !this->KeysProcessed[GLFW_KEY_ENTER]) {
+            this->State = GAME_ACTIVE;
+            this->KeysProcessed[GLFW_KEY_ENTER] = true;
+        }
+        if (this->Keys[GLFW_KEY_W] && !this->KeysProcessed[GLFW_KEY_W]) {
+            this->CurrentLevel = (this->CurrentLevel + 1) % this->Levels.size();
+            this->KeysProcessed[GLFW_KEY_W] = true;
+        }
+        if (this->Keys[GLFW_KEY_S] && ! this->KeysProcessed[GLFW_KEY_S]) {
+            // because the level counter is an unsigned integer, we have to do some casting when decreasing the level
+            this->CurrentLevel = static_cast<unsigned int>((static_cast<int>(this->CurrentLevel) - 1) % this->Levels.size());
+            this->KeysProcessed[GLFW_KEY_S] = true;
+        }
+    }
+
+    if(this->State == GAME_WIN) {
+	    if(this->Keys[GLFW_KEY_ENTER]) {
+            this->KeysProcessed[GLFW_KEY_ENTER] = true;
+            PostProcess->Chaos = false;
+            this->State = GAME_MENU;
+	    }
+    }
+
 }
 
 void Game::Render() {
-    if(this->State == GAME_ACTIVE) {
+    if(this->State == GAME_ACTIVE || this->State == GAME_MENU) {
         PostProcess->BeginRender();
 
 			// draw background
@@ -159,10 +223,24 @@ void Game::Render() {
 	            }
             }
 
+			// draw life count
+            Text->RenderText("Lives: " + std::to_string(this->Lives), 5.0f, 5.0f, 1.0f);
+
         PostProcess->EndRender();
         PostProcess->Render(static_cast<float>(glfwGetTime()));
     }
 
+    if(this->State == GAME_MENU) {
+        // draw menu text
+        Text->RenderText("Press ENTER to start", 250.0f, Height / 2.0f, 1.0f);
+        Text->RenderText("Press W or S to select level", 245.0f, Height / 2.0f + 20.0f, 0.75f);
+    }
+
+    // winning state
+    if(this->State == GAME_WIN) {
+        Text->RenderText("You WON!", 320.0f, Height / 2.0f - 20.0f, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+        Text->RenderText("Press ENTER to restart or ESC to quit", 130.0f, Height / 2.0f, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+    }
 
 	//Renderer->DrawSprite(ResourceManager::GetTexture("face"), glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 }
@@ -267,10 +345,12 @@ void Game::DoCollisions() {
         if(!box.IsSolid) {
             box.Destroyed = true;
             this->SpawnPowerUps(box);
+            ma_engine_play_sound(&engine, "resources/audio/bleep.mp3", NULL);
         }
         else {
             ShakeTime = 0.05f;
             PostProcess->Shake = true;
+            ma_engine_play_sound(&engine, "resources/audio/solid.wav", NULL);
         }
 
         // collision reaction
@@ -326,6 +406,7 @@ void Game::DoCollisions() {
                 ActivatePowerUp(powerUp);
                 powerUp.Destroyed = true;
                 powerUp.Activated = true;
+                ma_engine_play_sound(&engine, "resources/audio/powerup.wav", NULL);
             }
         }
     }
@@ -346,6 +427,7 @@ void Game::DoCollisions() {
 
         // if sticky powerup is activated, stick the ball to the player after calculating new velocities
     	Ball->Stuck = Ball->Sticky;
+        ma_engine_play_sound(&engine, "resources/audio/bleep.wav", NULL);
     }
 }
 
@@ -370,6 +452,9 @@ void Game::ResetLevel() {
 	    case 2: this->Levels[2].Load("resources/levels/three.lvl", this->Width, this->Height / 2); break;
 	    case 3: this->Levels[3].Load("resources/levels/four.lvl", this->Width, this->Height / 2); break;
     }
+
+    this->Lives = MAX_LIVES;
+
     //if (this->CurrentLevel == 0)
     //    this->Levels[0].Load("rresources/levels/one.lvl", this->Width, this->Height / 2);
     //else if (this->CurrentLevel == 1)
